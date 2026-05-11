@@ -1,0 +1,9 @@
+dist
+.nitro
+.output
+# Environment
+.env
+example.env
+
+# dependencies
+/node_modules
