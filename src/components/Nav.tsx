@@ -4,32 +4,35 @@ export default function Nav() {
   const location = useLocation();
   const active = (path: string) =>
     path === location.pathname
-      ? "border-ink"
-      : "border-transparent hover:border-ink";
+      ? "border-[#1a1a1a]"
+      : "border-transparent hover:border-[#1a1a1a]";
   return (
-    <nav class="sticky top-0 z-10 bg-surface border-b-2 border-ink">
+    <nav class="sticky top-0 z-20 border-b-2 border-[#1a1a1a] bg-[#f7f5f0]">
       <div class="mx-auto flex max-w-6xl flex-col gap-3 px-6 py-4">
         <div class="flex flex-wrap items-center justify-between gap-4">
-          <A href="/" class="font-display text-3xl text-ink-dark">
-            Aimsight
-          </A>
-          <div class="flex items-center gap-4">
+          <div class="flex flex-wrap items-center gap-10">
             <A
               href="/"
-              class="font-display px-4 h-10 bg-bg border-2 border-ink shadow-neo-sm active:shadow-neo-none active:translate-x-1 active:translate-y-1 transition-all duration-75 inline-flex items-center justify-center"
+              class="text-[28px] tracking-[4px] text-[#1a1a1a] [font-family:'Bebas_Neue',sans-serif]"
             >
-              Get started
+              Aimsight
             </A>
+            <ul class="flex flex-wrap items-center gap-6 text-[13px] uppercase tracking-[2px] text-[#1a1a1a] [font-family:'DM_Mono',monospace] pt-2">
+              <li class={`border-b-2 ${active("/")} pb-1`}>
+                <A href="/">Home</A>
+              </li>
+              <li class={`border-b-2 ${active("/about")} pb-1`}>
+                <A href="/about">About</A>
+              </li>
+            </ul>
           </div>
+          <A
+            href="/authentication"
+            class="inline-flex h-10 items-center justify-center border-2 border-[#1a1a1a] bg-[#1a1a1a] px-4 text-[12px] font-bold uppercase tracking-[2px] text-[#f7f5f0] shadow-[3px_3px_0_#1a1a1a] transition-all duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0_#1a1a1a] active:translate-x-0 active:translate-y-0 active:shadow-[2px_2px_0_#1a1a1a]"
+          >
+            Get started
+          </A>
         </div>
-        <ul class="flex flex-wrap items-center gap-6">
-          <li class={`border-b-2 ${active("/")} pb-1 font-display text-ink-dark`}>
-            <A href="/">Home</A>
-          </li>
-          <li class={`border-b-2 ${active("/about")} pb-1 font-display text-ink-dark`}>
-            <A href="/about">About</A>
-          </li>
-        </ul>
       </div>
     </nav>
   );
