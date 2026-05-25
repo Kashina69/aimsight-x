@@ -1,45 +1,26 @@
-# Style Skill — Neobrutalist Editorial (Tailwind)
+# Style Skill — Minimal Brutalist Auth (Tailwind)
 
 ## Aesthetic
-Retro newspaper meets neobrutalism. Cream backgrounds, ink-dark borders, hand-stamped typography, zero gradients, hard corners. Everything looks typeset and pressed.
+Minimal brutalism with editorial DNA. Paper backgrounds, deep ink borders, bold display type, mono captions, hard corners, and stamped shadow offsets. No gradients. Everything feels like a printed interface.
 
 ---
 
 ## Setup
 
-**tailwind.config.js**
-```js
-module.exports = {
-  theme: {
-    extend: {
-      fontFamily: {
-        display: ['Caprasimo', 'serif'],
-        body:    ['Outfit', 'sans-serif'],
-        alt:     ['Bricolage Grotesque', 'sans-serif'],
-      },
-      colors: {
-        bg:      '#f7f5ef',
-        surface: '#f0ede3',
-        shadow:  '#d4c98a',
-        ink:     '#404040',
-        'ink-dark':  '#363636',
-        'ink-light': '#4b4b4b',
-      },
-      boxShadow: {
-        neo:       '4px 4px 0px #404040',
-        'neo-sm':  '2px 2px 0px #404040',
-        'neo-none': '0px 0px 0px #404040',
-      },
-      borderRadius: { DEFAULT: '0px', none: '0px' },
-    },
-  },
-}
-```
-
 **Google Fonts** — add to `<head>`:
 ```html
-<link href="https://fonts.googleapis.com/css2?family=Caprasimo&family=Outfit:wght@200;400;600&family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 ```
+
+Use Tailwind arbitrary values for colors and fonts to keep the palette precise:
+- Paper: `bg-[#f7f5f0]`
+- Ink: `text-[#1a1a1a]`, `border-[#1a1a1a]`
+- Participant accent: `bg-[#c8b89a]`
+- Enterprise accent: `bg-[#8fa3a8]`
+- Muted surface: `bg-[#e8e4dc]`
+- Display font: `[font-family:'Bebas_Neue',sans-serif]`
+- Body font: `[font-family:'Space_Grotesk',sans-serif]`
+- Mono labels: `[font-family:'DM_Mono',monospace]`
 
 ---
 
@@ -48,100 +29,89 @@ module.exports = {
 ### Typography
 | Role | Classes |
 |---|---|
-| Masthead | `font-display text-5xl text-ink-dark` |
-| Section heading | `font-display text-2xl text-ink-dark` |
-| Card heading | `font-display text-lg text-ink-dark` |
-| Body copy | `font-body text-base text-ink leading-relaxed text-justify` |
-| Caption / label | `font-body text-xs font-light text-ink` |
-| Meta / dateline | `font-body text-sm text-ink` |
+| Masthead | `text-[clamp(48px,7vw,82px)] [font-family:'Bebas_Neue',sans-serif] tracking-[2px]` |
+| Section heading | `text-[40px] [font-family:'Bebas_Neue',sans-serif] tracking-[1px]` |
+| Card heading | `text-[34px] [font-family:'Bebas_Neue',sans-serif] tracking-[2px]` |
+| Body copy | `text-[14px] [font-family:'Space_Grotesk',sans-serif] leading-[1.6]` |
+| Label / meta | `text-[10px] [font-family:'DM_Mono',monospace] uppercase tracking-[2px]` |
+| Inline meta | `text-[11px] [font-family:'DM_Mono',monospace] tracking-[1px]` |
 
 ### Colors
 | Use | Classes |
 |---|---|
-| Page background | `bg-bg` |
-| Header / footer / surface | `bg-surface` |
-| All borders | `border-ink` |
-| Primary text | `text-ink-dark` |
-| Body text | `text-ink` |
-| Muted / captions | `text-ink-light` |
-| Image overlay caption bg | `bg-ink text-bg` |
+| Page background | `bg-[#f7f5f0]` |
+| Primary ink | `text-[#1a1a1a]` |
+| Borders | `border-[#1a1a1a]` |
+| Participant accent | `bg-[#c8b89a]` |
+| Enterprise accent | `bg-[#8fa3a8]` |
+| Muted surface | `bg-[#e8e4dc]` |
 
 ### Borders & Shadows
 | Use | Classes |
 |---|---|
-| Standard border | `border-2 border-ink` |
-| Divider | `border border-ink` |
-| Section break | `border-double border-t-2 border-ink` |
-| Neobrutalist shadow | `shadow-neo` |
-| Small shadow | `shadow-neo-sm` |
-| No shadow (pressed) | `shadow-neo-none` |
+| Standard border | `border-2 border-[#1a1a1a]` |
+| Divider | `border-[1.5px] border-[#1a1a1a]` |
+| Card shadow | `shadow-[6px_6px_0_#1a1a1a]` |
+| Button shadow | `shadow-[4px_4px_0_#1a1a1a]` |
+| Pressed state | `active:shadow-[2px_2px_0_#1a1a1a] active:translate-x-0 active:translate-y-0` |
 
 > **Never use** `rounded-*` — hard corners only.  
-> **Never use** `shadow-*` built-ins — only `shadow-neo` variants.
+> **Never use** Tailwind built-in `shadow-*` — use explicit offsets like `shadow-[4px_4px_0_#1a1a1a]`.
 
 ---
 
 ## Components
 
-**Button**
+**Primary button**
 ```html
-<button class="font-display px-5 h-14 bg-surface border-2 border-ink shadow-neo
-               active:shadow-neo-none active:translate-x-1 active:translate-y-1
-               transition-all duration-75 cursor-pointer">
-  Click me
+<button class="border-2 border-[#1a1a1a] bg-[#1a1a1a] px-4 py-3
+               text-[14px] font-extrabold uppercase tracking-[2px] text-[#f7f5f0]
+               shadow-[4px_4px_0_#1a1a1a] transition-all hover:-translate-x-0.5 hover:-translate-y-0.5
+               hover:shadow-[6px_6px_0_#1a1a1a] active:translate-x-0 active:translate-y-0
+               active:shadow-[2px_2px_0_#1a1a1a]">
+  Continue →
 </button>
 ```
 
-**Card**
+**Role card**
 ```html
-<div class="border-2 border-ink bg-bg p-4 flex flex-col gap-3">
-  <h2 class="font-display text-xl text-ink-dark">Heading</h2>
-  <p class="font-body text-base text-ink leading-relaxed text-justify">Body copy.</p>
-</div>
-```
-
-**Image block**
-```html
-<div class="relative border-2 border-ink overflow-hidden aspect-video">
-  <img src="..." class="w-full h-full object-cover grayscale" />
-  <span class="absolute bottom-0 right-0 bg-ink text-bg text-xs font-light px-2 py-0.5">
-    Caption here
-  </span>
-</div>
-```
-
-**Marquee ticker**
-```html
-<div class="overflow-hidden border-t-2 border-b-2 border-ink py-2 bg-surface">
-  <div class="flex gap-8 w-max animate-[marquee_40s_linear_infinite]">
-    <span class="font-body text-sm text-ink">☆ Headline one</span>
-    <span class="font-body text-sm text-ink">☆ Headline two</span>
-    <!-- duplicate items for seamless loop -->
+<div class="border-2 border-[#1a1a1a] bg-[#f7f5f0] shadow-[6px_6px_0_#1a1a1a]">
+  <div class="border-b-2 border-[#1a1a1a] bg-[#c8b89a] px-7 pb-5 pt-7">
+    <h2 class="text-[34px] tracking-[2px] [font-family:'Bebas_Neue',sans-serif]">PARTICIPANT</h2>
+    <div class="text-[12px] tracking-[1px] opacity-60 [font-family:'DM_Mono',monospace]">Individual · Explorer · Creator</div>
   </div>
+  <div class="px-7 pb-7 pt-5">...</div>
 </div>
 ```
-Add to tailwind config keyframes:
-```js
-keyframes: {
-  marquee: { from: { transform: 'translateX(0)' }, to: { transform: 'translateX(-50%)' } }
-},
-animation: { marquee: 'marquee 40s linear infinite' }
+
+**Tabs**
+```html
+<div class="flex border-2 border-[#1a1a1a] bg-[#f7f5f0] shadow-[4px_4px_0_#1a1a1a]">
+  <button class="flex-1 border-r-2 border-[#1a1a1a] px-3 py-3 text-[13px] font-bold uppercase tracking-[1.5px] opacity-35">Login</button>
+  <button class="flex-1 px-3 py-3 text-[13px] font-bold uppercase tracking-[1.5px] bg-[#c8b89a] opacity-100">Sign up</button>
+</div>
 ```
 
-**Sticky header**
+**Inputs**
 ```html
-<header class="sticky top-0 z-10 bg-surface flex flex-col items-center pt-4">
-  <h1 class="font-display text-5xl text-ink-dark">Masthead</h1>
-  <!-- marquee goes here -->
-</header>
+<input class="w-full border-2 border-[#1a1a1a] bg-[#f7f5f0] px-3.5 py-2.5 text-[14px]
+              font-medium text-[#1a1a1a] shadow-[3px_3px_0_#1a1a1a] transition-all
+              focus:bg-white focus:shadow-[4px_4px_0_#1a1a1a]" />
 ```
 
-**Article strip (meta bar)**
+**Auth sidebar**
 ```html
-<div class="flex justify-between px-6 py-1.5 border-t border-b border-ink text-sm text-ink font-body">
-  <span>Saturday, May 23 2026</span>
-  <span>Vol. 1 · Issue 1</span>
-  <span>Free</span>
+<aside class="hidden w-[380px] border-r-2 border-[#1a1a1a] bg-[#c8b89a] md:flex">
+  <div class="px-9 py-11">...</div>
+</aside>
+```
+
+**Grid overlay**
+```html
+<div class="relative before:content-[''] before:fixed before:inset-0 before:pointer-events-none
+            before:[background-image:linear-gradient(rgba(26,26,26,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(26,26,26,0.04)_1px,transparent_1px)]
+            before:[background-size:36px_36px]">
+  ...
 </div>
 ```
 
@@ -180,11 +150,9 @@ animation: { marquee: 'marquee 40s linear infinite' }
 
 | ✅ Do | ❌ Don't |
 |---|---|
-| `bg-bg` / `bg-surface` only | Any other background color |
-| `grayscale` on all images | Color images |
-| `border-2 border-ink` everywhere | `border-gray-*` or thin borders |
-| `font-display` for all headings | Other display fonts |
-| `shadow-neo` for raised elements | Tailwind's built-in shadows |
+| `bg-[#f7f5f0]` with ink borders | White backgrounds |
+| `shadow-[4px_4px_0_#1a1a1a]` offsets | Tailwind `shadow-*` |
+| `Bebas Neue` for headings | Generic heading fonts |
+| `DM Mono` for labels | Mixed label fonts |
 | Hard corners (no `rounded-*`) | Any `rounded-*` class |
-| `text-justify` for long body copy | Default left-align on paragraphs |
-| `border-double` for major dividers | Decorative or colored dividers |
+| Accent blocks only in #c8b89a / #8fa3a8 | Bright saturated accents |
