@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEXUS — Auth</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:     #1a1a1a;
+    --paper:   #f7f5f0;
+    --muted:   #e8e4dc;
+    --accent-p: #c8b89a;   /* warm sand — participant */
+    --accent-e: #8fa3a8;   /* slate blue — enterprise */
+    --border:  2px solid #1a1a1a;
+    --shadow:  4px 4px 0px #1a1a1a;
+    --shadow-lg: 6px 6px 0px #1a1a1a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--paper);
+    font-family: 'Space Grotesk', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(26,26,26,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(26,26,26,0.04) 1px, transparent 1px);
+    background-size: 36px 36px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page { display: none; }
+  .page.active { display: flex; }
+
+  /* ========== SELECTION PAGE ========== */
+  #selection-page {
+    min-height: 100vh;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .logo-bar {
+    position: absolute;
+    top: 28px; left: 36px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo-icon {
+    width: 38px; height: 38px;
+    background: var(--ink);
+    border: var(--border);
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .logo-icon::before {
+    content: '';
+    position: absolute;
+    width: 16px; height: 16px;
+    border: 2px solid var(--accent-p);
+    transform: rotate(45deg);
+  }
+  .logo-icon::after {
+    content: '';
+    position: absolute;
+    width: 6px; height: 6px;
+    background: var(--accent-p);
+    transform: rotate(45deg);
+  }
+
+  .logo-text {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px;
+    letter-spacing: 4px;
+    color: var(--ink);
+  }
+
+  .badge {
+    position: absolute;
+    top: 28px; right: 36px;
+    background: transparent;
+    color: var(--ink);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    padding: 5px 12px;
+    border: var(--border);
+    letter-spacing: 2px;
+    opacity: 0.45;
+  }
+
+  .selection-header {
+    text-align: center;
+    margin-bottom: 52px;
+  }
+
+  .eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--ink);
+    opacity: 0.4;
+    margin-bottom: 14px;
+    text-transform: uppercase;
+  }
+
+  .selection-header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 7vw, 82px);
+    color: var(--ink);
+    line-height: 0.92;
+    letter-spacing: 2px;
+  }
+
+  .selection-header h1 span {
+    color: transparent;
+    -webkit-text-stroke: 2px var(--ink);
+  }
+
+  .selection-header p {
+    margin-top: 18px;
+    font-size: 14px;
+    color: var(--ink);
+    opacity: 0.45;
+    max-width: 360px;
+    margin-left: auto; margin-right: auto;
+    line-height: 1.6;
+  }
+
+  .cards-container {
+    display: flex;
+    gap: 28px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .role-card {
+    width: 300px;
+    border: var(--border);
+    background: var(--paper);
+    box-shadow: var(--shadow-lg);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+
+  .role-card:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 9px 9px 0px var(--ink);
+  }
+
+  .role-card:active {
+    transform: translate(0,0);
+    box-shadow: var(--shadow);
+  }
+
+  .card-header {
+    padding: 28px 28px 20px;
+    position: relative;
+    border-bottom: var(--border);
+  }
+
+  .card-participant .card-header { background: var(--accent-p); }
+  .card-enterprise .card-header { background: var(--accent-e); }
+
+  .card-icon-wrap {
+    width: 60px; height: 60px;
+    background: var(--ink);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 18px;
+    border: var(--border);
+  }
+
+  .card-tag {
+    position: absolute;
+    top: 14px; right: 14px;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    padding: 3px 8px;
+    border: 1.5px solid var(--ink);
+    background: rgba(247,245,240,0.5);
+    color: var(--ink);
+    opacity: 0.7;
+  }
+
+  .card-header h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 34px;
+    letter-spacing: 2px;
+    color: var(--ink);
+    line-height: 1;
+  }
+
+  .card-header .sub {
+    font-size: 12px;
+    margin-top: 4px;
+    color: var(--ink);
+    opacity: 0.6;
+    font-weight: 500;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 1px;
+  }
+
+  .card-body { padding: 22px 28px 28px; }
+
+  .feature-list {
+    list-style: none;
+    display: flex; flex-direction: column;
+    gap: 9px;
+    margin-bottom: 24px;
+  }
+
+  .feature-list li {
+    display: flex; align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink);
+    opacity: 0.75;
+  }
+
+  .feature-dot {
+    width: 6px; height: 6px;
+    border: 1.5px solid var(--ink);
+    flex-shrink: 0;
+  }
+
+  .card-participant .feature-dot { background: var(--accent-p); }
+  .card-enterprise .feature-dot { background: var(--accent-e); }
+
+  .card-cta {
+    width: 100%;
+    padding: 12px;
+    border: var(--border);
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+    text-transform: uppercase;
+    background: var(--ink);
+    color: var(--paper);
+    transition: background 0.1s;
+  }
+
+  .card-cta:hover { background: #333; }
+
+  /* ========== AUTH PAGE ========== */
+  #auth-page {
+    min-height: 100vh;
+    flex-direction: row;
+    position: relative;
+    z-index: 1;
+  }
+
+  .auth-sidebar {
+    width: 380px;
+    flex-shrink: 0;
+    border-right: var(--border);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .sidebar-participant { background: var(--accent-p); }
+  .sidebar-enterprise { background: var(--accent-e); }
+
+  .sidebar-content {
+    padding: 44px 36px;
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--ink);
+    color: var(--paper);
+    border: var(--border);
+    padding: 7px 14px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    margin-bottom: 44px;
+    width: fit-content;
+    transition: transform 0.1s, box-shadow 0.1s;
+    box-shadow: 3px 3px 0 rgba(0,0,0,0.25);
+  }
+  .back-btn:hover { transform: translate(-2px,-2px); box-shadow: 5px 5px 0 rgba(0,0,0,0.25); }
+
+  .sidebar-logo {
+    display: flex; align-items: center;
+    gap: 10px;
+    margin-bottom: 36px;
+  }
+
+  .sidebar-logo-icon {
+    width: 40px; height: 40px;
+    background: var(--ink);
+    border: var(--border);
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .sidebar-logo-icon::before {
+    content: '';
+    position: absolute;
+    width: 17px; height: 17px;
+    border: 2px solid var(--paper);
+    transform: rotate(45deg);
+  }
+  .sidebar-logo-icon::after {
+    content: '';
+    position: absolute;
+    width: 7px; height: 7px;
+    background: var(--paper);
+    transform: rotate(45deg);
+  }
+
+  .sidebar-logo-text {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    letter-spacing: 4px;
+    color: var(--ink);
+  }
+
+  .sidebar-headline {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 50px;
+    line-height: 0.95;
+    letter-spacing: 1px;
+    color: var(--ink);
+    margin-bottom: 16px;
+  }
+
+  .sidebar-desc {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink);
+    opacity: 0.6;
+    line-height: 1.65;
+    max-width: 260px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .sidebar-stats {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-top: 32px;
+    border-top: 1.5px solid rgba(26,26,26,0.2);
+  }
+
+  .stat-item { display: flex; align-items: center; gap: 12px; }
+
+  .stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px;
+    color: var(--ink);
+    min-width: 64px;
+  }
+
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--ink);
+    opacity: 0.5;
+  }
+
+  .sidebar-deco {
+    position: absolute;
+    bottom: 30px; right: -50px;
+    width: 160px; height: 160px;
+    border: 3px solid var(--ink);
+    transform: rotate(18deg);
+    opacity: 0.07;
+  }
+
+  /* ========== AUTH MAIN ========== */
+  .auth-main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    background: var(--paper);
+  }
+
+  .auth-form-wrap {
+    width: 100%;
+    max-width: 400px;
+  }
+
+  .role-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 12px;
+    border: var(--border);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    color: var(--ink);
+  }
+
+  .pill-participant { background: var(--accent-p); }
+  .pill-enterprise { background: var(--accent-e); }
+
+  .pill-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--ink);
+  }
+
+  .auth-tabs {
+    display: flex;
+    border: var(--border);
+    box-shadow: var(--shadow);
+    margin-bottom: 32px;
+    background: var(--paper);
+  }
+
+  .tab-btn {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    background: transparent;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    color: var(--ink);
+    opacity: 0.35;
+    transition: all 0.15s;
+  }
+
+  .tab-btn.active { opacity: 1; }
+  .tab-btn.active-participant { background: var(--accent-p); }
+  .tab-btn.active-enterprise { background: var(--accent-e); }
+  .tab-btn:first-child { border-right: var(--border); }
+
+  .form-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 40px;
+    color: var(--ink);
+    letter-spacing: 1px;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .form-sub {
+    font-size: 11px;
+    color: var(--ink);
+    opacity: 0.4;
+    margin-bottom: 28px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 2px;
+  }
+
+  .form-group { margin-bottom: 16px; }
+
+  .form-label {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--ink);
+    margin-bottom: 7px;
+    opacity: 0.55;
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 11px 14px;
+    border: var(--border);
+    background: var(--paper);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink);
+    outline: none;
+    transition: box-shadow 0.1s, background 0.1s;
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+
+  .form-input:focus {
+    box-shadow: 4px 4px 0 var(--ink);
+    background: #fff;
+  }
+
+  .form-input::placeholder { opacity: 0.3; }
+
+  .form-row { display: flex; gap: 12px; }
+  .form-row .form-group { flex: 1; }
+
+  .remember-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .custom-check {
+    width: 16px; height: 16px;
+    border: var(--border);
+    background: var(--paper);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .custom-check.checked-participant { background: var(--accent-p); }
+  .custom-check.checked-enterprise { background: var(--accent-e); }
+  .custom-check svg { display: none; }
+  .custom-check.checked-participant svg,
+  .custom-check.checked-enterprise svg { display: block; }
+
+  .forgot-link {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: var(--ink);
+    cursor: pointer;
+    text-decoration: underline;
+    opacity: 0.45;
+  }
+
+  .submit-btn {
+    width: 100%;
+    padding: 14px;
+    border: var(--border);
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 800;
+    font-size: 14px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+    box-shadow: var(--shadow);
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .submit-btn:hover {
+    transform: translate(-2px,-2px);
+    box-shadow: 6px 6px 0 var(--ink);
+  }
+
+  .submit-btn:active {
+    transform: translate(0,0);
+    box-shadow: 2px 2px 0 var(--ink);
+  }
+
+  .btn-participant:hover { background: #111; }
+  .btn-enterprise:hover  { background: #111; }
+
+  .divider {
+    display: flex; align-items: center;
+    gap: 14px;
+    margin: 20px 0;
+  }
+
+  .divider-line { flex: 1; height: 1.5px; background: var(--ink); opacity: 0.12; }
+
+  .divider span {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--ink);
+    opacity: 0.35;
+  }
+
+  .oauth-row { display: flex; gap: 10px; }
+
+  .oauth-btn {
+    flex: 1;
+    padding: 11px;
+    border: var(--border);
+    background: var(--paper);
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    gap: 8px;
+    transition: background 0.1s, transform 0.1s, box-shadow 0.1s;
+    box-shadow: 3px 3px 0 var(--ink);
+    color: var(--ink);
+  }
+
+  .oauth-btn:hover {
+    transform: translate(-2px,-2px);
+    box-shadow: 5px 5px 0 var(--ink);
+    background: var(--muted);
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 28px; right: 28px;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 1px;
+    padding: 12px 20px;
+    border: var(--border);
+    box-shadow: var(--shadow);
+    z-index: 999;
+    display: none;
+    animation: slideUp 0.25s ease;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .role-card { animation: fadeUp 0.35s ease both; }
+  .role-card:nth-child(2) { animation-delay: 0.08s; }
+  .selection-header { animation: fadeUp 0.3s ease both; }
+  .auth-sidebar, .auth-main { animation: fadeUp 0.3s ease both; }
+
+  @media (max-width: 780px) {
+    .auth-sidebar { display: none; }
+    .role-card { width: 270px; }
+    .logo-bar, .badge { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ========== SELECTION PAGE ========== -->
+<div id="selection-page" class="page active">
+  <div class="logo-bar">
+    <div class="logo-icon"></div>
+    <span class="logo-text">NEXUS</span>
+  </div>
+  <div class="badge">V 2.0 · PLATFORM</div>
+
+  <div class="selection-header">
+    <div class="eyebrow">// welcome — choose your role</div>
+    <h1>WHO ARE<br>YOU <span>TODAY?</span></h1>
+    <p>Select your account type to continue. Each role unlocks a tailored experience.</p>
+  </div>
+
+  <div class="cards-container">
+
+    <!-- Participant -->
+    <div class="role-card card-participant" onclick="selectRole('participant')">
+      <div class="card-header">
+        <div class="card-tag">FREE TIER</div>
+        <div class="card-icon-wrap">
+          <svg width="30" height="30" viewBox="0 0 32 32" fill="none">
+            <circle cx="16" cy="10" r="5" stroke="#c8b89a" stroke-width="2"/>
+            <path d="M5 28c0-6.075 4.925-11 11-11s11 4.925 11 11" stroke="#c8b89a" stroke-width="2" stroke-linecap="square"/>
+          </svg>
+        </div>
+        <h2>PARTICIPANT</h2>
+        <div class="sub">Individual · Explorer · Creator</div>
+      </div>
+      <div class="card-body">
+        <ul class="feature-list">
+          <li><div class="feature-dot"></div>Access all public events</li>
+          <li><div class="feature-dot"></div>Personal dashboard & portfolio</li>
+          <li><div class="feature-dot"></div>Connect with 10K+ community</li>
+          <li><div class="feature-dot"></div>Track learning progress</li>
+        </ul>
+        <button class="card-cta">Join as Participant →</button>
+      </div>
+    </div>
+
+    <!-- Enterprise -->
+    <div class="role-card card-enterprise" onclick="selectRole('enterprise')">
+      <div class="card-header">
+        <div class="card-tag">PRO TIER</div>
+        <div class="card-icon-wrap">
+          <svg width="30" height="30" viewBox="0 0 32 32" fill="none">
+            <rect x="4" y="14" width="24" height="14" stroke="#8fa3a8" stroke-width="2"/>
+            <path d="M11 14v-3a5 5 0 0110 0v3" stroke="#8fa3a8" stroke-width="2"/>
+            <rect x="13" y="19" width="6" height="4" fill="#8fa3a8" opacity="0.7"/>
+          </svg>
+        </div>
+        <h2>ENTERPRISE</h2>
+        <div class="sub">Company · Agency · Scale</div>
+      </div>
+      <div class="card-body">
+        <ul class="feature-list">
+          <li><div class="feature-dot"></div>Host unlimited events & programs</li>
+          <li><div class="feature-dot"></div>Advanced analytics & reporting</li>
+          <li><div class="feature-dot"></div>Team management & SSO</li>
+          <li><div class="feature-dot"></div>Dedicated account support</li>
+        </ul>
+        <button class="card-cta">Join as Enterprise →</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ========== AUTH PAGE ========== -->
+<div id="auth-page" class="page">
+
+  <div class="auth-sidebar" id="auth-sidebar">
+    <div class="sidebar-content">
+      <button class="back-btn" onclick="goBack()">← Back</button>
+
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon"></div>
+        <span class="sidebar-logo-text">NEXUS</span>
+      </div>
+
+      <div class="sidebar-headline" id="sidebar-headline">BUILT FOR<br>PEOPLE<br>LIKE YOU.</div>
+      <p class="sidebar-desc" id="sidebar-desc">Join thousands of participants building skills, exploring opportunities, and levelling up every day.</p>
+
+      <div class="sidebar-stats">
+        <div class="stat-item">
+          <div class="stat-num">48K+</div>
+          <div class="stat-label">Active users</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">2.4K</div>
+          <div class="stat-label">Events monthly</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">99%</div>
+          <div class="stat-label">Satisfaction rate</div>
+        </div>
+      </div>
+    </div>
+    <div class="sidebar-deco"></div>
+  </div>
+
+  <div class="auth-main">
+    <div class="auth-form-wrap">
+
+      <div class="role-pill" id="role-pill">
+        <div class="pill-dot"></div>
+        <span id="role-pill-text">PARTICIPANT MODE</span>
+      </div>
+
+      <div class="auth-tabs">
+        <button class="tab-btn active" id="tab-login" onclick="switchTab('login')">Login</button>
+        <button class="tab-btn" id="tab-signup" onclick="switchTab('signup')">Sign Up</button>
+      </div>
+
+      <!-- LOGIN -->
+      <div id="login-form">
+        <div class="form-title">WELCOME<br>BACK.</div>
+        <div class="form-sub">// enter your credentials</div>
+
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" class="form-input" placeholder="you@example.com" id="login-email">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-input" placeholder="••••••••••" id="login-pass">
+        </div>
+
+        <div class="remember-row">
+          <label class="checkbox-label" onclick="toggleCheck('remember-check')">
+            <div class="custom-check" id="remember-check">
+              <svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5L3.5 6L8 1" stroke="#1a1a1a" stroke-width="1.8" stroke-linecap="square"/></svg>
+            </div>
+            Remember me
+          </label>
+          <span class="forgot-link">Forgot password?</span>
+        </div>
+
+        <button class="submit-btn btn-participant" id="login-btn" onclick="handleLogin()">Login to Nexus →</button>
+
+        <div class="divider">
+          <div class="divider-line"></div>
+          <span>OR CONTINUE WITH</span>
+          <div class="divider-line"></div>
+        </div>
+
+        <div class="oauth-row">
+          <button class="oauth-btn" onclick="oauthLogin('Google')">
+            <svg width="16" height="16" viewBox="0 0 18 18"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z" fill="#34A853"/><path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A9.007 9.007 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/></svg>
+            Google
+          </button>
+          <button class="oauth-btn" onclick="oauthLogin('GitHub')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="#1a1a1a"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+            GitHub
+          </button>
+        </div>
+      </div>
+
+      <!-- SIGNUP -->
+      <div id="signup-form" style="display:none">
+        <div class="form-title">CREATE<br>ACCOUNT.</div>
+        <div class="form-sub">// start your journey</div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">First Name</label>
+            <input type="text" class="form-input" placeholder="Alex" id="signup-first">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Last Name</label>
+            <input type="text" class="form-input" placeholder="Kim" id="signup-last">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" class="form-input" placeholder="you@example.com" id="signup-email">
+        </div>
+
+        <div id="org-field" style="display:none">
+          <div class="form-group">
+            <label class="form-label">Organisation Name</label>
+            <input type="text" class="form-input" placeholder="ACME Corp." id="signup-org">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-input" placeholder="Min. 8 characters" id="signup-pass">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirm Password</label>
+          <input type="password" class="form-input" placeholder="Repeat password" id="signup-pass2">
+        </div>
+
+        <div style="margin-bottom:20px">
+          <label class="checkbox-label" onclick="toggleCheck('terms-check')">
+            <div class="custom-check" id="terms-check">
+              <svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5L3.5 6L8 1" stroke="#1a1a1a" stroke-width="1.8" stroke-linecap="square"/></svg>
+            </div>
+            I agree to the <u style="cursor:pointer;margin-left:4px">Terms & Privacy</u>
+          </label>
+        </div>
+
+        <button class="submit-btn btn-participant" id="signup-btn" onclick="handleSignup()">Create My Account →</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  let currentRole = 'participant';
+  let checks = {};
+
+  function selectRole(role) {
+    currentRole = role;
+    document.getElementById('selection-page').classList.remove('active');
+    document.getElementById('auth-page').classList.add('active');
+
+    const sidebar   = document.getElementById('auth-sidebar');
+    const pill      = document.getElementById('role-pill');
+    const pillText  = document.getElementById('role-pill-text');
+    const headline  = document.getElementById('sidebar-headline');
+    const desc      = document.getElementById('sidebar-desc');
+    const loginBtn  = document.getElementById('login-btn');
+    const signupBtn = document.getElementById('signup-btn');
+    const orgField  = document.getElementById('org-field');
+
+    if (role === 'participant') {
+      sidebar.className  = 'auth-sidebar sidebar-participant';
+      pill.className     = 'role-pill pill-participant';
+      pillText.textContent = 'PARTICIPANT MODE';
+      headline.innerHTML = 'BUILT FOR<br>PEOPLE<br>LIKE YOU.';
+      desc.textContent   = 'Join thousands of participants building skills, exploring opportunities, and levelling up every day.';
+      loginBtn.className = 'submit-btn btn-participant';
+      signupBtn.className= 'submit-btn btn-participant';
+      orgField.style.display = 'none';
+    } else {
+      sidebar.className  = 'auth-sidebar sidebar-enterprise';
+      pill.className     = 'role-pill pill-enterprise';
+      pillText.textContent = 'ENTERPRISE MODE';
+      headline.innerHTML = 'SCALE YOUR<br>BUSINESS<br>FASTER.';
+      desc.textContent   = 'Powerful tools for companies to host, manage, and grow programmes at scale with full analytics.';
+      loginBtn.className = 'submit-btn btn-enterprise';
+      signupBtn.className= 'submit-btn btn-enterprise';
+      orgField.style.display = 'block';
+    }
+
+    switchTab('login');
+  }
+
+  function goBack() {
+    document.getElementById('auth-page').classList.remove('active');
+    document.getElementById('selection-page').classList.add('active');
+  }
+
+  function switchTab(tab) {
+    const loginForm = document.getElementById('login-form');
+    const signupForm = document.getElementById('signup-form');
+    const tabLogin  = document.getElementById('tab-login');
+    const tabSignup = document.getElementById('tab-signup');
+    const activeClass = currentRole === 'participant' ? 'active-participant' : 'active-enterprise';
+
+    tabLogin.classList.remove('active','active-participant','active-enterprise');
+    tabSignup.classList.remove('active','active-participant','active-enterprise');
+
+    if (tab === 'login') {
+      loginForm.style.display  = 'block';
+      signupForm.style.display = 'none';
+      tabLogin.classList.add('active', activeClass);
+    } else {
+      loginForm.style.display  = 'none';
+      signupForm.style.display = 'block';
+      tabSignup.classList.add('active', activeClass);
+    }
+  }
+
+  function toggleCheck(id) {
+    const el = document.getElementById(id);
+    checks[id] = !checks[id];
+    const cls = currentRole === 'participant' ? 'checked-participant' : 'checked-enterprise';
+    el.classList.toggle(cls, checks[id]);
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.display = 'block';
+    setTimeout(() => { t.style.display = 'none'; }, 3000);
+  }
+
+  function handleLogin() {
+    const email = document.getElementById('login-email').value;
+    const pass  = document.getElementById('login-pass').value;
+    if (!email || !pass)       { showToast('⚠  Fill in all fields'); return; }
+    if (!email.includes('@'))  { showToast('⚠  Invalid email address'); return; }
+    showToast('✓  Logged in successfully');
+  }
+
+  function handleSignup() {
+    const first = document.getElementById('signup-first').value;
+    const last  = document.getElementById('signup-last').value;
+    const email = document.getElementById('signup-email').value;
+    const pass  = document.getElementById('signup-pass').value;
+    const pass2 = document.getElementById('signup-pass2').value;
+    if (!first || !last || !email || !pass || !pass2) { showToast('⚠  Fill in all fields'); return; }
+    if (!email.includes('@'))  { showToast('⚠  Invalid email address'); return; }
+    if (pass.length < 8)       { showToast('⚠  Password too short'); return; }
+    if (pass !== pass2)        { showToast('⚠  Passwords do not match'); return; }
+    if (!checks['terms-check']){ showToast('⚠  Accept terms to continue'); return; }
+    showToast('✓  Account created successfully');
+  }
+
+  function oauthLogin(provider) {
+    showToast(`→  Connecting with ${provider}...`);
+  }
+</script>
+</body>
+</html>

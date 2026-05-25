@@ -1,0 +1,371 @@
+@import url('https://fonts.googleapis.com/css2?family=Caprasimo&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap');
+
+:root {
+    --shadow-color: oklch(82.711% 0.06845 96.458);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0px;
+    padding: 0px;
+}
+
+body {
+    font-family: 'Outfit', sans-serif;
+    background: oklch(98.7% 0.022 95.277);
+}
+
+.header {
+    width: 100%;
+    padding: 16px 0 0 0;
+    position: sticky;
+    top: 0px;
+    background: oklch(96.209% 0.03854 95.871);
+    z-index: 4;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-content: center;
+}
+
+.marquee {
+    width: 100%;
+    overflow: hidden;
+    background: oklch(96.209% 0.03854 95.871);
+    border-top: 2px solid #404040;
+    border-bottom: 2px solid #404040;
+    padding: 8px 0;
+}
+
+.marquee-track {
+    display: flex;
+    gap: 32px;
+    width: max-content;
+    animation: marquee 50s linear infinite;
+}
+
+@keyframes marquee {
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        transform: translateX(-100%);
+    }
+}
+
+/* Gaps */
+.mb-0  { margin-bottom: 0; }
+.mb-1  { margin-bottom: 4px; }
+.mb-2  { margin-bottom: 8px; }
+.mb-3  { margin-bottom: 12px; }
+.mb-4  { margin-bottom: 16px; }
+.mb-5  { margin-bottom: 20px; }
+.mb-6  { margin-bottom: 24px; }
+.mb-7  { margin-bottom: 28px; }
+.mb-8  { margin-bottom: 32px; }
+.mb-9  { margin-bottom: 36px; }
+.mb-10 { margin-bottom: 40px; }
+.mb-11 { margin-bottom: 44px; }
+.mb-12 { margin-bottom: 48px; }
+.mb-13 { margin-bottom: 52px; }
+.mb-14 { margin-bottom: 56px; }
+.mb-15 { margin-bottom: 60px; }
+.mb-16 { margin-bottom: 64px; }
+
+/* Color Styles */
+.text-dark {
+    color: #363636;
+}
+
+.text-less-dark {
+    color: #404040;
+}
+
+.text-superlight {
+    color: #4b4b4b;
+}
+
+.text-light {
+    color: oklch(94.584% 0.09559 96.944);
+}
+
+.header > h1, p {
+    text-align: center;
+}
+
+.head-text-xl {
+    font-family: 'Caprasimo', serif;
+    font-size: 56px;
+
+    position: relative;
+}
+
+.head-text-xl::before {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    color: transparent;
+    -webkit-text-stroke: 5px var(--shadow-color);
+    
+    filter:
+        drop-shadow(4px 4px 0 var(--shadow-color));
+
+    z-index: -1;
+}
+
+.head-text-lg {
+    font-size: 18px;
+}
+
+.head-text-md {
+    font-family: 'Caprasimo', serif;
+    font-size: 32px;
+}
+
+.body-text {
+    font-size: 16px;
+    text-align: justify;
+}
+
+.body {
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    padding: 24px;
+    padding-bottom: 80px;
+    gap: 24px;
+}
+
+.col {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.footer {
+    display: flex;
+    padding: 16px 24px;
+    justify-content: space-between;
+    background: oklch(96.209% 0.03854 95.871);
+    border-top: 2px double #404040;
+
+    position: fixed;
+    width: 100%;
+    bottom: 0px;
+
+    z-index: 4;
+}
+
+.button {
+    font-family: 'Caprasimo', serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 16px;
+    min-width: 80px;
+    height: 56px;
+    width: fit-content;
+    background: oklch(96.209% 0.03854 95.871);
+    box-shadow: 4px 4px 0px #404040;
+    border: 2px solid #404040;
+    cursor: pointer;
+}
+
+.button:active {
+    box-shadow: 0px 0px 0px #404040;
+    transform: translate(4px, 4px);
+}
+
+.long-text-shadow {
+    text-shadow:
+        /* 2px 2px 0px var(--shadow-color), 
+        -2px 2px 0px var(--shadow-color), 
+        2px -2px 0px var(--shadow-color), 
+        -2px -2px 0px var(--shadow-color), */
+        1px 1px 0 var(--shadow-color),
+        2px 2px 0 var(--shadow-color),
+        3px 3px 0 var(--shadow-color),
+        4px 4px 0 var(--shadow-color),
+        5px 5px 0 var(--shadow-color),
+        6px 6px 0 var(--shadow-color),
+        7px 7px 0 var(--shadow-color),
+        8px 8px 0 var(--shadow-color);
+        /* 9px 9px 0 var(--shadow-color),
+        10px 10px 0 var(--shadow-color),
+        11px 11px 0 var(--shadow-color),
+        12px 12px 0 var(--shadow-color),
+        13px 13px 0 var(--shadow-color),
+        14px 14px 0 var(--shadow-color),
+        15px 15px 0 var(--shadow-color),
+        16px 16px 0 var(--shadow-color),
+        17px 17px 0 var(--shadow-color),
+        18px 18px 0 var(--shadow-color),
+        19px 19px 0 var(--shadow-color),
+        20px 20px 0 var(--shadow-color),
+        21px 21px 0 var(--shadow-color),
+        22px 22px 0 var(--shadow-color),
+        23px 23px 0 var(--shadow-color),
+        24px 24px 0 var(--shadow-color),
+        25px 25px 0 var(--shadow-color),
+        26px 26px 0 var(--shadow-color),
+        27px 27px 0 var(--shadow-color),
+        28px 28px 0 var(--shadow-color),
+        29px 29px 0 var(--shadow-color),
+        30px 30px 0 var(--shadow-color),
+        31px 31px 0 var(--shadow-color),
+        32px 32px 0 var(--shadow-color),
+        33px 33px 0 var(--shadow-color),
+        34px 34px 0 var(--shadow-color),
+        35px 35px 0 var(--shadow-color),
+        36px 36px 0 var(--shadow-color),
+        37px 37px 0 var(--shadow-color),
+        38px 38px 0 var(--shadow-color),
+        39px 39px 0 var(--shadow-color),
+        40px 40px 0 var(--shadow-color),
+        41px 41px 0 var(--shadow-color),
+        42px 42px 0 var(--shadow-color),
+        43px 43px 0 var(--shadow-color),
+        44px 44px 0 var(--shadow-color),
+        45px 45px 0 var(--shadow-color),
+        46px 46px 0 var(--shadow-color),
+        47px 47px 0 var(--shadow-color),
+        48px 48px 0 var(--shadow-color),
+        49px 49px 0 var(--shadow-color),
+        50px 50px 0 var(--shadow-color),
+        51px 51px 0 var(--shadow-color),
+        52px 52px 0 var(--shadow-color),
+        53px 53px 0 var(--shadow-color),
+        54px 54px 0 var(--shadow-color),
+        55px 55px 0 var(--shadow-color),
+        56px 56px 0 var(--shadow-color),
+        57px 57px 0 var(--shadow-color),
+        58px 58px 0 var(--shadow-color),
+        59px 59px 0 var(--shadow-color),
+        60px 60px 0 var(--shadow-color),
+        61px 61px 0 var(--shadow-color),
+        62px 62px 0 var(--shadow-color),
+        63px 63px 0 var(--shadow-color),
+        64px 64px 0 var(--shadow-color),
+        65px 65px 0 var(--shadow-color),
+        66px 66px 0 var(--shadow-color),
+        67px 67px 0 var(--shadow-color); */
+        
+}
+
+.article-strip {
+    width: 100%;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+
+    border-top: 1px solid #404040;
+    border-bottom: 1px solid #404040;
+}
+
+.img-con {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 2;
+    border: 2px solid #404040;
+    position: relative;
+    overflow: hidden;
+}
+
+.news-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: saturate(0%);
+    position: relative;
+    z-index: 1;
+}
+
+.img-con::before {
+    content: "";
+
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    background: url("./noise.png");
+    background-repeat: repeat;
+
+    opacity: 0.5;
+
+    z-index: 2;
+
+    pointer-events: none;
+}
+
+.image-caption {
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #404040;
+    color: oklch(98.7% 0.022 95.277);
+    font-weight: 200;
+    padding: 2px 8px;
+
+    z-index: 3;
+}
+
+.news-card {
+    display: flex;
+    flex-direction: column;
+}
+
+.news-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.divider {
+    border: none;
+    height: 1px;
+    background: #4b4b4b;
+}
+
+.list-item {
+    display: flex;
+    flex-direction: row;
+    align-content: center;
+    gap: 16px;
+}
+
+.list-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-content: center;
+    gap: 4px;
+}
+
+.list-content > h3, p {
+    text-align: left;
+}
+
+.list-content > h3 {
+    font-family: 'Caprasimo', serif;
+    font-size: 18px;
+    color: #363636;
+}
+
+.list-content > p {
+    font-size: 16px;
+    color: #404040;
+}

@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEXUS — Auth</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0a0a0a;
+    --white: #f5f0e8;
+    --yellow: #FFE500;
+    --red: #FF3B3B;
+    --blue: #0066FF;
+    --green: #00E87A;
+    --border: 3px solid #0a0a0a;
+    --shadow: 5px 5px 0px #0a0a0a;
+    --shadow-lg: 8px 8px 0px #0a0a0a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--white);
+    font-family: 'Space Grotesk', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    background-image: 
+      radial-gradient(circle at 20% 80%, rgba(255,229,0,0.15) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(0,102,255,0.1) 0%, transparent 50%);
+  }
+
+  /* Grid pattern background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: 
+      linear-gradient(rgba(10,10,10,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(10,10,10,0.05) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page { display: none; }
+  .page.active { display: flex; }
+
+  /* =================== SELECTION PAGE =================== */
+  #selection-page {
+    min-height: 100vh;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .logo-bar {
+    position: absolute;
+    top: 30px;
+    left: 40px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-icon {
+    width: 44px;
+    height: 44px;
+    background: var(--black);
+    border: var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .logo-icon::before {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 3px solid var(--yellow);
+    transform: rotate(45deg);
+  }
+
+  .logo-icon::after {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: var(--yellow);
+    transform: rotate(45deg);
+  }
+
+  .logo-text {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 3px;
+    color: var(--black);
+  }
+
+  .badge {
+    position: absolute;
+    top: 30px;
+    right: 40px;
+    background: var(--black);
+    color: var(--yellow);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    padding: 6px 14px;
+    border: var(--border);
+    letter-spacing: 2px;
+  }
+
+  .selection-header {
+    text-align: center;
+    margin-bottom: 60px;
+  }
+
+  .selection-header .eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 4px;
+    color: var(--black);
+    opacity: 0.5;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+  }
+
+  .selection-header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(52px, 8vw, 96px);
+    color: var(--black);
+    line-height: 0.9;
+    letter-spacing: 2px;
+  }
+
+  .selection-header h1 span {
+    color: var(--blue);
+    -webkit-text-stroke: 2px var(--black);
+  }
+
+  .selection-header p {
+    margin-top: 20px;
+    font-size: 16px;
+    color: var(--black);
+    opacity: 0.6;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .cards-container {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .role-card {
+    width: 320px;
+    border: var(--border);
+    background: var(--white);
+    box-shadow: var(--shadow-lg);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+
+  .role-card:hover {
+    transform: translate(-4px, -4px);
+    box-shadow: 12px 12px 0px var(--black);
+  }
+
+  .role-card:active {
+    transform: translate(0, 0);
+    box-shadow: var(--shadow);
+  }
+
+  .card-header {
+    padding: 32px 32px 24px;
+    position: relative;
+  }
+
+  .card-participant .card-header { background: var(--yellow); }
+  .card-enterprise .card-header { background: var(--blue); }
+
+  .card-icon-wrap {
+    width: 72px;
+    height: 72px;
+    background: var(--black);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    border: var(--border);
+  }
+
+  .card-tag {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    padding: 4px 10px;
+    border: 2px solid var(--black);
+    background: rgba(255,255,255,0.4);
+  }
+
+  .card-participant .card-tag { color: var(--black); }
+  .card-enterprise .card-tag { color: var(--white); border-color: rgba(255,255,255,0.6); background: rgba(0,0,0,0.2); }
+
+  .card-header h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 38px;
+    letter-spacing: 2px;
+    color: var(--black);
+    line-height: 1;
+  }
+
+  .card-enterprise .card-header h2 { color: var(--white); }
+
+  .card-header .sub {
+    font-size: 13px;
+    margin-top: 6px;
+    opacity: 0.7;
+    font-weight: 500;
+  }
+
+  .card-participant .sub { color: var(--black); }
+  .card-enterprise .sub { color: var(--white); }
+
+  .card-body {
+    padding: 24px 32px 32px;
+    border-top: var(--border);
+  }
+
+  .feature-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+
+  .feature-list li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--black);
+  }
+
+  .feature-dot {
+    width: 8px;
+    height: 8px;
+    border: 2px solid var(--black);
+    flex-shrink: 0;
+  }
+
+  .card-participant .feature-dot { background: var(--green); }
+  .card-enterprise .feature-dot { background: var(--blue); }
+
+  .card-cta {
+    width: 100%;
+    padding: 14px;
+    border: var(--border);
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: background 0.1s;
+    text-transform: uppercase;
+  }
+
+  .card-participant .card-cta { background: var(--black); color: var(--yellow); }
+  .card-participant .card-cta:hover { background: #222; }
+  .card-enterprise .card-cta { background: var(--yellow); color: var(--black); }
+  .card-enterprise .card-cta:hover { background: #e6ce00; }
+
+  .deco-corner {
+    position: absolute;
+    bottom: -20px;
+    right: -20px;
+    width: 80px;
+    height: 80px;
+    border: 3px solid;
+    opacity: 0.15;
+    transform: rotate(15deg);
+  }
+
+  .card-participant .deco-corner { border-color: var(--black); }
+  .card-enterprise .deco-corner { border-color: var(--white); }
+
+  /* =================== AUTH PAGE =================== */
+  #auth-page {
+    min-height: 100vh;
+    flex-direction: row;
+    position: relative;
+    z-index: 1;
+  }
+
+  .auth-sidebar {
+    width: 420px;
+    flex-shrink: 0;
+    border-right: var(--border);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .sidebar-participant { background: var(--yellow); }
+  .sidebar-enterprise { background: var(--blue); }
+
+  .sidebar-content {
+    padding: 50px 40px;
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--black);
+    color: var(--white);
+    border: var(--border);
+    padding: 8px 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    margin-bottom: 50px;
+    width: fit-content;
+    transition: transform 0.1s, box-shadow 0.1s;
+    box-shadow: 3px 3px 0 rgba(0,0,0,0.3);
+  }
+
+  .back-btn:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0 rgba(0,0,0,0.3); }
+
+  .sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 40px;
+  }
+
+  .sidebar-logo-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--black);
+    border: 3px solid var(--black);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .sidebar-logo-icon::before {
+    content: '';
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    border: 3px solid;
+    transform: rotate(45deg);
+  }
+
+  .sidebar-participant .sidebar-logo-icon::before { border-color: var(--yellow); }
+  .sidebar-enterprise .sidebar-logo-icon::before { border-color: var(--blue); }
+
+  .sidebar-logo-icon::after {
+    content: '';
+    position: absolute;
+    width: 9px;
+    height: 9px;
+    transform: rotate(45deg);
+  }
+
+  .sidebar-participant .sidebar-logo-icon::after { background: var(--yellow); }
+  .sidebar-enterprise .sidebar-logo-icon::after { background: var(--blue); }
+
+  .sidebar-logo-text {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 30px;
+    letter-spacing: 3px;
+    color: var(--black);
+  }
+
+  .sidebar-enterprise .sidebar-logo-text { color: var(--white); }
+
+  .sidebar-headline {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 56px;
+    line-height: 0.95;
+    letter-spacing: 1px;
+    color: var(--black);
+    margin-bottom: 20px;
+  }
+
+  .sidebar-enterprise .sidebar-headline { color: var(--white); }
+
+  .sidebar-desc {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--black);
+    opacity: 0.7;
+    line-height: 1.6;
+    max-width: 280px;
+  }
+
+  .sidebar-enterprise .sidebar-desc { color: var(--white); }
+
+  .sidebar-stats {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .stat-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    color: var(--black);
+    min-width: 70px;
+  }
+
+  .sidebar-enterprise .stat-num { color: var(--white); }
+
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--black);
+    opacity: 0.6;
+  }
+
+  .sidebar-enterprise .stat-label { color: var(--white); }
+
+  /* Decorative shapes in sidebar */
+  .sidebar-deco {
+    position: absolute;
+    bottom: 40px;
+    right: -40px;
+    width: 180px;
+    height: 180px;
+    border: 4px solid;
+    transform: rotate(20deg);
+    opacity: 0.1;
+    z-index: 0;
+  }
+
+  .sidebar-participant .sidebar-deco { border-color: var(--black); }
+  .sidebar-enterprise .sidebar-deco { border-color: var(--white); }
+
+  .sidebar-deco2 {
+    position: absolute;
+    bottom: 80px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    transform: rotate(45deg);
+    opacity: 0.15;
+    z-index: 0;
+  }
+
+  .sidebar-participant .sidebar-deco2 { background: var(--black); }
+  .sidebar-enterprise .sidebar-deco2 { background: var(--white); }
+
+  /* Auth Form Area */
+  .auth-main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    background: var(--white);
+  }
+
+  .auth-form-wrap {
+    width: 100%;
+    max-width: 440px;
+  }
+
+  /* Tabs */
+  .auth-tabs {
+    display: flex;
+    border: var(--border);
+    box-shadow: var(--shadow);
+    margin-bottom: 36px;
+    background: var(--white);
+  }
+
+  .tab-btn {
+    flex: 1;
+    padding: 14px;
+    border: none;
+    background: transparent;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    color: var(--black);
+    opacity: 0.4;
+    transition: all 0.15s;
+    position: relative;
+  }
+
+  .tab-btn.active {
+    opacity: 1;
+  }
+
+  .tab-btn.active-participant { background: var(--yellow); }
+  .tab-btn.active-enterprise { background: var(--blue); color: var(--white); }
+
+  .tab-btn:first-child { border-right: var(--border); }
+
+  .form-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 44px;
+    color: var(--black);
+    letter-spacing: 1px;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .form-sub {
+    font-size: 14px;
+    color: var(--black);
+    opacity: 0.5;
+    margin-bottom: 32px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-label {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--black);
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 13px 16px;
+    border: var(--border);
+    background: var(--white);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--black);
+    outline: none;
+    transition: box-shadow 0.1s;
+    box-shadow: 3px 3px 0 var(--black);
+  }
+
+  .form-input:focus { box-shadow: 5px 5px 0 var(--black); }
+
+  .form-input::placeholder { opacity: 0.35; }
+
+  .form-row { display: flex; gap: 16px; }
+  .form-row .form-group { flex: 1; }
+
+  .remember-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--black);
+  }
+
+  .custom-check {
+    width: 18px;
+    height: 18px;
+    border: var(--border);
+    background: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .custom-check.checked-participant { background: var(--yellow); }
+  .custom-check.checked-enterprise { background: var(--blue); }
+
+  .custom-check svg { display: none; }
+  .custom-check.checked-participant svg,
+  .custom-check.checked-enterprise svg { display: block; }
+
+  .forgot-link {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 1px;
+    color: var(--black);
+    cursor: pointer;
+    text-decoration: underline;
+    opacity: 0.6;
+  }
+
+  .submit-btn {
+    width: 100%;
+    padding: 16px;
+    border: var(--border);
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 800;
+    font-size: 16px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+    box-shadow: var(--shadow);
+  }
+
+  .submit-btn:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 8px 8px 0 var(--black);
+  }
+
+  .submit-btn:active {
+    transform: translate(0, 0);
+    box-shadow: 2px 2px 0 var(--black);
+  }
+
+  .btn-participant { background: var(--yellow); color: var(--black); }
+  .btn-enterprise { background: var(--blue); color: var(--white); }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 24px 0;
+  }
+
+  .divider-line { flex: 1; height: 2px; background: var(--black); opacity: 0.15; }
+
+  .divider span {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--black);
+    opacity: 0.4;
+  }
+
+  .oauth-btn {
+    width: 100%;
+    padding: 13px;
+    border: var(--border);
+    background: var(--white);
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: background 0.1s, transform 0.1s, box-shadow 0.1s;
+    box-shadow: 3px 3px 0 var(--black);
+  }
+
+  .oauth-btn:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 5px 5px 0 var(--black);
+    background: #eee8d8;
+  }
+
+  /* Role pill on form */
+  .role-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border: var(--border);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 28px;
+  }
+
+  .pill-participant { background: var(--yellow); }
+  .pill-enterprise { background: var(--blue); color: var(--white); }
+
+  .pill-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--black);
+  }
+
+  .pill-enterprise .pill-dot { background: var(--white); }
+
+  /* Success flash */
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: var(--black);
+    color: var(--green);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 1px;
+    padding: 14px 24px;
+    border: 2px solid var(--green);
+    box-shadow: var(--shadow);
+    z-index: 999;
+    display: none;
+    animation: slideUp 0.3s ease;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Entrance animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .role-card { animation: fadeUp 0.4s ease both; }
+  .role-card:nth-child(2) { animation-delay: 0.1s; }
+  .selection-header { animation: fadeUp 0.3s ease both; }
+
+  .auth-sidebar, .auth-main {
+    animation: fadeUp 0.35s ease both;
+  }
+
+  @media (max-width: 800px) {
+    .auth-sidebar { display: none; }
+    .role-card { width: 280px; }
+    .logo-bar, .badge { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ========== SELECTION PAGE ========== -->
+<div id="selection-page" class="page active">
+  <div class="logo-bar">
+    <div class="logo-icon"></div>
+    <span class="logo-text">NEXUS</span>
+  </div>
+  <div class="badge">V 2.0 · PLATFORM</div>
+
+  <div class="selection-header">
+    <div class="eyebrow">// WELCOME — CHOOSE YOUR ROLE</div>
+    <h1>WHO ARE<br>YOU <span>TODAY?</span></h1>
+    <p>Select your account type to get started on the platform.</p>
+  </div>
+
+  <div class="cards-container">
+    <!-- Participant Card -->
+    <div class="role-card card-participant" onclick="selectRole('participant')">
+      <div class="card-header">
+        <div class="card-tag">FREE TIER</div>
+        <div class="card-icon-wrap">
+          <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+            <circle cx="18" cy="12" r="6" stroke="#FFE500" stroke-width="2.5"/>
+            <path d="M6 30c0-6.627 5.373-12 12-12s12 5.373 12 12" stroke="#FFE500" stroke-width="2.5" stroke-linecap="square"/>
+            <rect x="27" y="22" width="7" height="7" fill="#FFE500" opacity="0.4"/>
+          </svg>
+        </div>
+        <h2>PARTICIPANT</h2>
+        <div class="sub">Individual · Explorer · Creator</div>
+        <div class="deco-corner"></div>
+      </div>
+      <div class="card-body">
+        <ul class="feature-list">
+          <li><div class="feature-dot"></div>Access all public events</li>
+          <li><div class="feature-dot"></div>Personal dashboard & portfolio</li>
+          <li><div class="feature-dot"></div>Connect with 10K+ community</li>
+          <li><div class="feature-dot"></div>Track learning progress</li>
+        </ul>
+        <button class="card-cta">JOIN AS PARTICIPANT →</button>
+      </div>
+    </div>
+
+    <!-- Enterprise Card -->
+    <div class="role-card card-enterprise" onclick="selectRole('enterprise')">
+      <div class="card-header">
+        <div class="card-tag">PRO TIER</div>
+        <div class="card-icon-wrap">
+          <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+            <rect x="4" y="14" width="28" height="18" stroke="#0066FF" stroke-width="2.5"/>
+            <path d="M12 14V10a6 6 0 0112 0v4" stroke="#0066FF" stroke-width="2.5"/>
+            <rect x="14" y="20" width="8" height="6" fill="#0066FF" opacity="0.6"/>
+            <circle cx="29" cy="10" r="4" fill="#FFE500"/>
+          </svg>
+        </div>
+        <h2>ENTERPRISE</h2>
+        <div class="sub">Company · Agency · Scale</div>
+        <div class="deco-corner"></div>
+      </div>
+      <div class="card-body">
+        <ul class="feature-list">
+          <li><div class="feature-dot"></div>Host unlimited events & programs</li>
+          <li><div class="feature-dot"></div>Advanced analytics & reporting</li>
+          <li><div class="feature-dot"></div>Team management & SSO</li>
+          <li><div class="feature-dot"></div>Dedicated account support</li>
+        </ul>
+        <button class="card-cta">JOIN AS ENTERPRISE →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== AUTH PAGE ========== -->
+<div id="auth-page" class="page">
+
+  <!-- Sidebar -->
+  <div class="auth-sidebar" id="auth-sidebar">
+    <div class="sidebar-content">
+      <button class="back-btn" onclick="goBack()">← BACK</button>
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon"></div>
+        <span class="sidebar-logo-text">NEXUS</span>
+      </div>
+      <div class="sidebar-headline" id="sidebar-headline">BUILT FOR<br>PEOPLE<br>LIKE YOU.</div>
+      <p class="sidebar-desc" id="sidebar-desc">Join thousands of participants building skills, exploring opportunities, and leveling up every day.</p>
+
+      <div class="sidebar-stats">
+        <div class="stat-item">
+          <div class="stat-num">48K+</div>
+          <div class="stat-label">Active users</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">2.4K</div>
+          <div class="stat-label">Events monthly</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">99%</div>
+          <div class="stat-label">Satisfaction rate</div>
+        </div>
+      </div>
+    </div>
+    <div class="sidebar-deco"></div>
+    <div class="sidebar-deco2"></div>
+  </div>
+
+  <!-- Auth Main -->
+  <div class="auth-main">
+    <div class="auth-form-wrap">
+
+      <!-- Role Pill -->
+      <div class="role-pill" id="role-pill">
+        <div class="pill-dot"></div>
+        <span id="role-pill-text">PARTICIPANT MODE</span>
+      </div>
+
+      <!-- Tabs -->
+      <div class="auth-tabs">
+        <button class="tab-btn active" id="tab-login" onclick="switchTab('login')">LOGIN</button>
+        <button class="tab-btn" id="tab-signup" onclick="switchTab('signup')">SIGN UP</button>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <div id="login-form">
+        <div class="form-title">WELCOME<br>BACK.</div>
+        <div class="form-sub">// ENTER YOUR CREDENTIALS</div>
+
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" class="form-input" placeholder="you@example.com" id="login-email">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-input" placeholder="••••••••••" id="login-pass">
+        </div>
+
+        <div class="remember-row">
+          <label class="checkbox-label" onclick="toggleCheck('remember-check')">
+            <div class="custom-check" id="remember-check">
+              <svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L4 7L9 1" stroke="#0a0a0a" stroke-width="2" stroke-linecap="square"/></svg>
+            </div>
+            Remember me
+          </label>
+          <span class="forgot-link">Forgot password?</span>
+        </div>
+
+        <button class="submit-btn" id="login-btn" onclick="handleLogin()">LOGIN TO NEXUS →</button>
+
+        <div class="divider">
+          <div class="divider-line"></div>
+          <span>OR CONTINUE WITH</span>
+          <div class="divider-line"></div>
+        </div>
+
+        <div style="display:flex;gap:12px;">
+          <button class="oauth-btn" style="flex:1" onclick="oauthLogin('Google')">
+            <svg width="18" height="18" viewBox="0 0 18 18"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z" fill="#34A853"/><path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A9.007 9.007 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/></svg>
+            Google
+          </button>
+          <button class="oauth-btn" style="flex:1" onclick="oauthLogin('GitHub')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="#0a0a0a"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+            GitHub
+          </button>
+        </div>
+      </div>
+
+      <!-- SIGNUP FORM -->
+      <div id="signup-form" style="display:none">
+        <div class="form-title">CREATE<br>ACCOUNT.</div>
+        <div class="form-sub">// START YOUR JOURNEY</div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">First Name</label>
+            <input type="text" class="form-input" placeholder="Alex" id="signup-first">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Last Name</label>
+            <input type="text" class="form-input" placeholder="Kim" id="signup-last">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" class="form-input" placeholder="you@example.com" id="signup-email">
+        </div>
+        <div id="org-field" style="display:none">
+          <div class="form-group">
+            <label class="form-label">Organisation Name</label>
+            <input type="text" class="form-input" placeholder="ACME Corp." id="signup-org">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-input" placeholder="Min. 8 characters" id="signup-pass">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirm Password</label>
+          <input type="password" class="form-input" placeholder="Repeat password" id="signup-pass2">
+        </div>
+
+        <div style="margin-bottom:24px">
+          <label class="checkbox-label" onclick="toggleCheck('terms-check')">
+            <div class="custom-check" id="terms-check">
+              <svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L4 7L9 1" stroke="#0a0a0a" stroke-width="2" stroke-linecap="square"/></svg>
+            </div>
+            I agree to the <u style="cursor:pointer;margin-left:4px">Terms & Privacy</u>
+          </label>
+        </div>
+
+        <button class="submit-btn" id="signup-btn" onclick="handleSignup()">CREATE MY ACCOUNT →</button>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+  let currentRole = 'participant';
+  let currentTab = 'login';
+  let checks = {};
+
+  function selectRole(role) {
+    currentRole = role;
+    document.getElementById('selection-page').classList.remove('active');
+    document.getElementById('auth-page').classList.add('active');
+
+    const sidebar = document.getElementById('auth-sidebar');
+    const pill = document.getElementById('role-pill');
+    const pillText = document.getElementById('role-pill-text');
+    const headline = document.getElementById('sidebar-headline');
+    const desc = document.getElementById('sidebar-desc');
+    const loginBtn = document.getElementById('login-btn');
+    const signupBtn = document.getElementById('signup-btn');
+    const orgField = document.getElementById('org-field');
+
+    // Clear active tab styles first
+    document.getElementById('tab-login').classList.remove('active-participant','active-enterprise');
+    document.getElementById('tab-signup').classList.remove('active-participant','active-enterprise');
+    document.getElementById('tab-login').classList.add('active');
+    document.getElementById('tab-signup').classList.remove('active');
+
+    if (role === 'participant') {
+      sidebar.className = 'auth-sidebar sidebar-participant';
+      pill.className = 'role-pill pill-participant';
+      pillText.textContent = 'PARTICIPANT MODE';
+      headline.innerHTML = 'BUILT FOR<br>PEOPLE<br>LIKE YOU.';
+      desc.textContent = 'Join thousands of participants building skills, exploring opportunities, and leveling up every day.';
+      loginBtn.className = 'submit-btn btn-participant';
+      signupBtn.className = 'submit-btn btn-participant';
+      document.getElementById('tab-login').classList.add('active-participant');
+      orgField.style.display = 'none';
+    } else {
+      sidebar.className = 'auth-sidebar sidebar-enterprise';
+      pill.className = 'role-pill pill-enterprise';
+      pillText.textContent = 'ENTERPRISE MODE';
+      headline.innerHTML = 'SCALE YOUR<br>BUSINESS<br>FASTER.';
+      desc.textContent = 'Powerful tools for companies to host, manage, and grow programs at scale with full analytics.';
+      loginBtn.className = 'submit-btn btn-enterprise';
+      signupBtn.className = 'submit-btn btn-enterprise';
+      document.getElementById('tab-login').classList.add('active-enterprise');
+      orgField.style.display = 'block';
+    }
+
+    switchTab('login');
+  }
+
+  function goBack() {
+    document.getElementById('auth-page').classList.remove('active');
+    document.getElementById('selection-page').classList.add('active');
+  }
+
+  function switchTab(tab) {
+    currentTab = tab;
+    const loginForm = document.getElementById('login-form');
+    const signupForm = document.getElementById('signup-form');
+    const tabLogin = document.getElementById('tab-login');
+    const tabSignup = document.getElementById('tab-signup');
+    const activeClass = currentRole === 'participant' ? 'active-participant' : 'active-enterprise';
+
+    tabLogin.classList.remove('active', 'active-participant', 'active-enterprise');
+    tabSignup.classList.remove('active', 'active-participant', 'active-enterprise');
+
+    if (tab === 'login') {
+      loginForm.style.display = 'block';
+      signupForm.style.display = 'none';
+      tabLogin.classList.add('active', activeClass);
+    } else {
+      loginForm.style.display = 'none';
+      signupForm.style.display = 'block';
+      tabSignup.classList.add('active', activeClass);
+    }
+  }
+
+  function toggleCheck(id) {
+    const el = document.getElementById(id);
+    checks[id] = !checks[id];
+    const activeClass = currentRole === 'participant' ? 'checked-participant' : 'checked-enterprise';
+    el.classList.toggle(activeClass, checks[id]);
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.display = 'block';
+    setTimeout(() => { t.style.display = 'none'; }, 3000);
+  }
+
+  function handleLogin() {
+    const email = document.getElementById('login-email').value;
+    const pass = document.getElementById('login-pass').value;
+    if (!email || !pass) { showToast('⚠ FILL IN ALL FIELDS'); return; }
+    if (!email.includes('@')) { showToast('⚠ INVALID EMAIL ADDRESS'); return; }
+    showToast('✓ LOGGED IN SUCCESSFULLY');
+  }
+
+  function handleSignup() {
+    const first = document.getElementById('signup-first').value;
+    const last = document.getElementById('signup-last').value;
+    const email = document.getElementById('signup-email').value;
+    const pass = document.getElementById('signup-pass').value;
+    const pass2 = document.getElementById('signup-pass2').value;
+    if (!first || !last || !email || !pass || !pass2) { showToast('⚠ FILL IN ALL FIELDS'); return; }
+    if (!email.includes('@')) { showToast('⚠ INVALID EMAIL ADDRESS'); return; }
+    if (pass.length < 8) { showToast('⚠ PASSWORD TOO SHORT'); return; }
+    if (pass !== pass2) { showToast('⚠ PASSWORDS DO NOT MATCH'); return; }
+    if (!checks['terms-check']) { showToast('⚠ ACCEPT TERMS TO CONTINUE'); return; }
+    showToast('✓ ACCOUNT CREATED SUCCESSFULLY');
+  }
+
+  function oauthLogin(provider) {
+    showToast(`→ CONNECTING WITH ${provider.toUpperCase()}...`);
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign in — The Daily Digest</title>
+  <link href="https://fonts.googleapis.com/css2?family=Caprasimo&family=Outfit:wght@200;400;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['Caprasimo', 'serif'],
+            body:    ['Outfit', 'sans-serif'],
+          },
+          colors: {
+            bg:      '#f7f5ef',
+            surface: '#f0ede3',
+            shadow:  '#d4c98a',
+            ink:     '#404040',
+            'ink-dark':  '#363636',
+            'ink-light': '#4b4b4b',
+            'ink-muted': '#888780',
+            'ink-faint': '#b4b2a9',
+          },
+          boxShadow: {
+            neo:      '4px 4px 0px #404040',
+            'neo-gold': '4px 4px 0px #d4c98a',
+            'neo-none': '0px 0px 0px #404040',
+          },
+          borderRadius: {
+            DEFAULT: '0px',
+            none: '0px',
+          },
+          keyframes: {
+            ticker: {
+              from: { transform: 'translateX(0)' },
+              to:   { transform: 'translateX(-50%)' },
+            },
+          },
+          animation: {
+            ticker: 'ticker 30s linear infinite',
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    * { box-sizing: border-box; }
+    input:focus { outline: none; box-shadow: 4px 4px 0 #404040; }
+    .btn-primary:active,
+    .btn-ghost:active  { box-shadow: none !important; transform: translate(4px, 4px); }
+  </style>
+</head>
+
+<body class="bg-bg min-h-screen font-body">
+
+  <div class="grid grid-cols-1 md:grid-cols-2 min-h-screen">
+
+    <!-- LEFT — brand panel -->
+    <div class="flex flex-col justify-between bg-ink px-10 py-12">
+
+      <div>
+        <!-- Article strip -->
+        <div class="flex justify-between mb-6 py-1.5 border-[#5f5e5a] border-t border-b text-[11px] text-ink-muted tracking-widest">
+          <span>Est. 2025</span>
+          <span>Members Portal</span>
+          <span>Vol. I</span>
+        </div>
+
+        <!-- Masthead -->
+        <h1 class="font-display text-bg text-5xl leading-tight"
+            style="text-shadow: 1px 1px 0 #d4c98a,2px 2px 0 #d4c98a,3px 3px 0 #d4c98a,4px 4px 0 #d4c98a,5px 5px 0 #d4c98a,6px 6px 0 #d4c98a;">
+          The<br>Daily<br>Digest
+        </h1>
+        <p class="mt-3 font-light text-ink-faint text-xs tracking-widest">
+          Independent · Unfiltered · Yours
+        </p>
+
+        <!-- Marquee -->
+        <div class="my-6 py-2 border-[#5f5e5a] border-t border-b overflow-hidden">
+          <div class="flex gap-7 w-max font-light text-ink-muted text-xs tracking-wide animate-ticker">
+            <span>☆ Markets close higher</span>
+            <span>☆ New deep-sea species found</span>
+            <span>☆ Transit expansion approved</span>
+            <span>☆ Record harvest forecast</span>
+            <span>☆ Battery breakthrough claimed</span>
+            <!-- duplicate for seamless loop -->
+            <span>☆ Markets close higher</span>
+            <span>☆ New deep-sea species found</span>
+            <span>☆ Transit expansion approved</span>
+            <span>☆ Record harvest forecast</span>
+            <span>☆ Battery breakthrough claimed</span>
+          </div>
+        </div>
+
+        <p class="font-light text-ink-faint text-sm leading-relaxed">
+          Your press pass to everything that matters. Sign in to access today's full edition, your saved articles, and the archive.
+        </p>
+      </div>
+
+      <p class="mt-8 pt-4 border-[#5f5e5a] border-t font-light text-ink-muted text-xs">
+        © 2026 The Daily Digest · All rights reserved
+      </p>
+    </div>
+
+    <!-- RIGHT — login form -->
+    <div class="flex flex-col justify-center gap-7 bg-bg px-11 py-12">
+
+      <div>
+        <h2 class="font-display text-ink-dark text-3xl">Sign in</h2>
+        <p class="mt-1 font-light text-ink-light text-sm">Welcome back — your edition is ready.</p>
+      </div>
+
+      <div class="flex flex-col gap-4">
+
+        <!-- Email -->
+        <div class="flex flex-col gap-1.5">
+          <label for="email" class="font-semibold text-[11px] text-ink-dark uppercase tracking-widest">
+            Email address
+          </label>
+          <input
+            id="email" type="email" placeholder="you@example.com"
+            class="bg-surface px-3.5 border-2 border-ink h-12 font-body placeholder:font-light text-ink-dark placeholder:text-ink-muted text-sm transition-shadow"
+          />
+        </div>
+
+        <!-- Password -->
+        <div class="flex flex-col gap-1.5">
+          <label for="password" class="font-semibold text-[11px] text-ink-dark uppercase tracking-widest">
+            Password
+          </label>
+          <input
+            id="password" type="password" placeholder="••••••••"
+            class="bg-surface px-3.5 border-2 border-ink h-12 font-body placeholder:font-light text-ink-dark placeholder:text-ink-muted text-sm transition-shadow"
+          />
+        </div>
+
+        <!-- Remember / Forgot -->
+        <div class="flex justify-between items-center">
+          <label class="flex items-center gap-2 text-ink-light text-sm cursor-pointer">
+            <input type="checkbox" class="border-2 border-ink w-4 h-4 accent-ink cursor-pointer" />
+            Remember me
+          </label>
+          <button class="bg-transparent border-none font-light text-ink-light text-xs underline cursor-pointer">
+            Forgot password?
+          </button>
+        </div>
+
+        <!-- Primary CTA -->
+        <button class="bg-ink shadow-neo-gold py-3 border-2 border-ink h-13 font-display text-bg text-base tracking-wide transition-all cursor-pointer btn-primary">
+          Sign in →
+        </button>
+
+        <!-- Divider -->
+        <div class="flex items-center gap-3 text-ink-muted text-xs">
+          <span class="flex-1 bg-ink h-px"></span>
+          or continue with
+          <span class="flex-1 bg-ink h-px"></span>
+        </div>
+
+        <!-- Google SSO -->
+        <button class="flex justify-center items-center gap-2 bg-surface shadow-neo border-2 border-ink h-12 font-body font-semibold text-ink-dark text-sm transition-all cursor-pointer btn-ghost">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15.545 6.558a9.42 9.42 0 0 1 .139 1.626c0 2.434-.87 4.492-2.384 5.885h.002C11.978 15.292 10.158 16 8 16A8 8 0 1 1 8 0a7.689 7.689 0 0 1 5.352 2.082l-2.284 2.284A4.347 4.347 0 0 0 8 3.166c-2.087 0-3.86 1.408-4.492 3.304a4.792 4.792 0 0 0 0 3.063h.003c.635 1.893 2.405 3.301 4.492 3.301 1.078 0 2.004-.276 2.722-.764h-.003a3.702 3.702 0 0 0 1.599-2.431H8v-3.08h7.545z"/>
+          </svg>
+          Continue with Google
+        </button>
+
+        <!-- Sign up link -->
+        <p class="text-ink-light text-sm text-center">
+          No account yet?
+          <span class="font-semibold text-ink-dark underline cursor-pointer">Create one free</span>
+        </p>
+
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
