@@ -20,8 +20,8 @@ type DummyUserResponse = {
 async function fetchUsers() {
   const request = getRequestEvent()?.request;
   const url = request
-    ? new URL("/api/authentication/", request.url).toString()
-    : "/api/authentication/";
+    ? new URL("/api/dashboard/", request.url).toString()
+    : "/api/dashboard/";
   const response = await fetch(url);
 
   if (!response.ok) {
