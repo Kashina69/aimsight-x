@@ -28,9 +28,3 @@ npm run build
 ```bash
 npm run preview
 ```
-
-## Deploy
-
-```bash
-npm run deploy
-```
