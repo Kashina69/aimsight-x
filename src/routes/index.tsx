@@ -4,7 +4,7 @@ import { AuthSelection } from "~/components/authentication/Auth";
 import Dashboard from "~/components/dashboard/Dashboard";
 
 export default function Home() {
-  const [isAuthenticated, setIsAuthenticated] = createSignal(false);
+  const [isAuthenticated, setIsAuthenticated] = createSignal(true);
   console.log(isAuthenticated());
   return (
     <div>
