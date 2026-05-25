@@ -28,3 +28,21 @@ Now make a nav and about us page complement with the DESIGN.md
 
 5
 
+
+Done (short)
+- Built dashboard API fetch and data display with SSR-safe fetch URL
+- Reworked auth UI to minimal brutalist layout and wired all auth routes
+- Converted auth styling to Tailwind-only (removed standalone CSS)
+- Updated nav to match the new design style
+- Updated DESIGN.md with the new palette, fonts, and component patterns
+
+
+6 
+
+
+now make the auth actually work by writing routes and all with api of signin sign up entire auth with validation
+
+
+7 
+
+make the about us page match the theme
