@@ -1,4 +1,4 @@
-# Aimsight Clone
+# NEXA Aimsight Clone
 
 Build with 
 
