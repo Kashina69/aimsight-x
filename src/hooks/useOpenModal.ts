@@ -8,7 +8,7 @@ export default function useOpenModal(open: boolean, onClose: () => void) {
 
         const previousOverflow = document.body.style.overflow;
         const handleKeyDown = (event: KeyboardEvent) => {
-            console.log();
+            console.log("");
             if (event.key === "Escape") {
                 onClose();
             }
