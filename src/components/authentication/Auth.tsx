@@ -216,7 +216,7 @@ async function handleAuth(type: AuthTab, payload: any) {
     const result = await createRequest(route, payload);
 
     if (!result.ok) {
-      throw new Error(result.error ?? "Authentication failed");
+      throw new Error(result.error() ?? "Authentication failed");
     }
 
     navigate("/");
