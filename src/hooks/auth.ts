@@ -1,7 +1,8 @@
-import { fetchApiResource } from "~/utils/api";
+import { createRequest } from "~/utils/api";
 
 export function useGetUser() {
-  return fetchApiResource("/api/authentication/me");
+  const {data} = createRequest("/api/authentication/me");
+  return data;
 }
 
 

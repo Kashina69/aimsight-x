@@ -1,59 +1,9 @@
-import { A } from "@solidjs/router";
-import { createSignal, Show } from "solid-js";
-
-type AuthRole = "participant" | "enterprise" | "admin";
-type AuthTab = "login" | "signup";
-
-type RoleConfig = {
-  label: string;
-  pill: string;
-  headline: string;
-  description: string;
-  stats: Array<{ value: string; label: string }>;
-  style: "participant" | "enterprise";
-};
-
-const ROLE_CONFIG: Record<AuthRole, RoleConfig> = {
-  participant: {
-    label: "Participant mode",
-    pill: "Participant mode",
-    headline: "Built for\npeople\nlike you.",
-    description:
-      "Join thousands of participants building skills, exploring opportunities, and leveling up every day.",
-    stats: [
-      { value: "48K+", label: "Active users" },
-      { value: "2.4K", label: "Events monthly" },
-      { value: "99%", label: "Satisfaction rate" },
-    ],
-    style: "participant",
-  },
-  enterprise: {
-    label: "Enterprise mode",
-    pill: "Enterprise mode",
-    headline: "Scale your\nbusiness\nfaster.",
-    description:
-      "Powerful tools for companies to host, manage, and grow programs at scale with full analytics.",
-    stats: [
-      { value: "120+", label: "Teams onboarded" },
-      { value: "88%", label: "Retention rate" },
-      { value: "24/7", label: "Support coverage" },
-    ],
-    style: "enterprise",
-  },
-  admin: {
-    label: "Admin mode",
-    pill: "Admin mode",
-    headline: "Restricted\nadmin\naccess.",
-    description:
-      "Admin access is reserved for system operators and trusted staff only.",
-    stats: [
-      { value: "0", label: "Guest access" },
-      { value: "3", label: "Security layers" },
-      { value: "24/7", label: "Monitoring" },
-    ],
-    style: "enterprise",
-  },
-};
+import { A, useNavigate } from "@solidjs/router";
+import { Show } from "solid-js";
+import { createStore } from "solid-js/store";
+import ROLE_CONFIG from "./constants";
+import { createRequest } from "~/utils/api";
+import { AuthTab, UserRole } from "~/constants/auth";
 
 export function AuthSelection() {
   const shellClass =
@@ -71,7 +21,7 @@ export function AuthSelection() {
             <div class="absolute h-1.5 w-1.5 rotate-45 bg-[#c8b89a]" />
           </div>
           <span class="text-[24px] tracking-[4px] text-[#1a1a1a] [font-family:'Bebas_Neue',sans-serif]">
-            Aimsight
+            NEXA
           </span>
         </div>
         <div class="mx-auto flex min-h-[calc(100vh-80px)] max-w-4xl flex-col items-center justify-center text-center">
@@ -217,19 +167,71 @@ export function AuthSelection() {
     </div>
   );
 }
+
 type AuthRolePageProps = {
-  role: AuthRole;
+  role: UserRole;
   initialTab?: AuthTab;
 };
 
 export function AuthRolePage(props: AuthRolePageProps) {
-  const config = () => ROLE_CONFIG[props.role];
-  const [tab, setTab] = createSignal<AuthTab>(props.initialTab ?? "login");
-  const [remember, setRemember] = createSignal(false);
-  const [acceptedTerms, setAcceptedTerms] = createSignal(false);
+  const navigate = useNavigate();
+  const [authFormState, setAuthFormState] = createStore({
+    tab: props.initialTab ?? "signin" as AuthTab,
+    remember: false,
+    acceptedTerms: false,
+    isSubmitting: false,
+    errorMessage: "",
+    signinEmail: "",
+    signinPassword: "",
+    signupFirst: "",
+    signupLast: "",
+    signupEmail: "",
+    signupOrg: "",
+    signupPassword: "",
+    signupPasswordConfirm: "",
+  });
+
+  
+async function handleAuth(type: AuthTab, payload: any) {
+  setAuthFormState("errorMessage", "");
+  setAuthFormState("isSubmitting", true);
+
+  try {
+    if (type === "signup") {
+      if (authFormState.signupPassword !== authFormState.signupPasswordConfirm) {
+        setAuthFormState("errorMessage", "Passwords do not match");
+        return;
+      }
+      if (!authFormState.acceptedTerms) {
+        setAuthFormState("errorMessage", "Accept the terms to continue");
+        return;
+      }
+    }
+
+    const route =
+      type === "signin"
+        ? "/api/authentication/signin"
+        : "/api/authentication/signup";
+
+    const result = await createRequest(route, payload);
+
+    if (!result.ok) {
+      throw new Error(result.error ?? "Authentication failed");
+    }
+
+    navigate("/");
+
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "There was an issue with auth";
+    setAuthFormState("errorMessage", message);
+  } finally {
+    setAuthFormState("isSubmitting", false);
+  }
+}
   const showSignup = () => props.role !== "admin";
   const activeTabClass = () =>
-    config().style === "participant"
+    ROLE_CONFIG[props.role].style === "participant"
       ? "bg-[#c8b89a] opacity-100"
       : "bg-[#8fa3a8] opacity-100";
   const shellClass =
@@ -242,9 +244,8 @@ export function AuthRolePage(props: AuthRolePageProps) {
     <div class={shellClass}>
       <div class="relative z-10 flex min-h-screen flex-col md:flex-row">
         <div
-          class={`hidden w-[380px] flex-shrink-0 border-r-2 border-[#1a1a1a] md:flex ${
-            config().style === "participant" ? "bg-[#c8b89a]" : "bg-[#8fa3a8]"
-          }`}
+          class={`hidden w-[380px] flex-shrink-0 border-r-2 border-[#1a1a1a] md:flex ${ROLE_CONFIG[props.role].style === "participant" ? "bg-[#c8b89a]" : "bg-[#8fa3a8]"
+            }`}
         >
           <div class="relative flex flex-1 flex-col px-9 py-11">
             <A
@@ -260,12 +261,12 @@ export function AuthRolePage(props: AuthRolePageProps) {
                 <div class="absolute h-[7px] w-[7px] rotate-45 bg-[#f7f5f0]" />
               </div>
               <span class="text-[26px] tracking-[4px] text-[#1a1a1a] [font-family:'Bebas_Neue',sans-serif]">
-                Aimsight
+                NEXA
               </span>
             </div>
 
             <div class="text-[50px] leading-[0.95] tracking-[1px] text-[#1a1a1a] [font-family:'Bebas_Neue',sans-serif]">
-              {config()
+              {ROLE_CONFIG[props.role]
                 .headline
                 .split("\n")
                 .map((line, index) => (
@@ -276,11 +277,11 @@ export function AuthRolePage(props: AuthRolePageProps) {
                 ))}
             </div>
             <p class="mt-4 max-w-[260px] text-[13px] leading-[1.65] text-[#1a1a1a] opacity-60 [font-family:'DM_Mono',monospace]">
-              {config().description}
+              {ROLE_CONFIG[props.role].description}
             </p>
 
             <div class="mt-auto flex flex-col gap-2.5 border-t-[1.5px] border-[rgba(26,26,26,0.2)] pt-8">
-              {config().stats.map((stat) => (
+              {ROLE_CONFIG[props.role].stats.map((stat) => (
                 <div class="flex items-center gap-3">
                   <div class="min-w-[64px] text-[24px] text-[#1a1a1a] [font-family:'Bebas_Neue',sans-serif]">
                     {stat.value}
@@ -298,38 +299,35 @@ export function AuthRolePage(props: AuthRolePageProps) {
         <div class="flex flex-1 items-center justify-center bg-[#f7f5f0] px-6 py-10">
           <div class="w-full max-w-[400px]">
             <div
-              class={`mb-6 inline-flex items-center gap-2 border-2 border-[#1a1a1a] px-3 py-1.5 text-[10px] uppercase tracking-[2px] text-[#1a1a1a] [font-family:'DM_Mono',monospace] ${
-                config().style === "participant" ? "bg-[#c8b89a]" : "bg-[#8fa3a8]"
-              }`}
+              class={`mb-6 inline-flex items-center gap-2 border-2 border-[#1a1a1a] px-3 py-1.5 text-[10px] uppercase tracking-[2px] text-[#1a1a1a] [font-family:'DM_Mono',monospace] ${ROLE_CONFIG[props.role].style === "participant" ? "bg-[#c8b89a]" : "bg-[#8fa3a8]"
+                }`}
             >
               <div class="h-[6px] w-[6px] rounded-full bg-[#1a1a1a]" />
-              <span>{config().pill}</span>
+              <span>{ROLE_CONFIG[props.role].pill}</span>
             </div>
 
             <Show when={showSignup()}>
               <div class="mb-8 flex border-2 border-[#1a1a1a] bg-[#f7f5f0] shadow-[4px_4px_0_#1a1a1a]">
                 <button
-                  class={`flex-1 border-r-2 border-[#1a1a1a] px-3 py-3 text-[13px] font-bold uppercase tracking-[1.5px] text-[#1a1a1a] transition-all duration-150 [font-family:'Space_Grotesk',sans-serif] ${
-                    tab() === "login" ? `opacity-100 ${activeTabClass()}` : "opacity-35"
-                  }`}
+                  class={`flex-1 border-r-2 border-[#1a1a1a] px-3 py-3 text-[13px] font-bold uppercase tracking-[1.5px] text-[#1a1a1a] transition-all duration-150 [font-family:'Space_Grotesk',sans-serif] ${authFormState.tab === "signin" ? `opacity-100 ${activeTabClass()}` : "opacity-35"
+                    }`}
                   type="button"
-                  onClick={() => setTab("login")}
+                  onClick={() => setAuthFormState("tab", "signin")}
                 >
-                  Login
+                  Signin
                 </button>
                 <button
-                  class={`flex-1 px-3 py-3 text-[13px] font-bold uppercase tracking-[1.5px] text-[#1a1a1a] transition-all duration-150 [font-family:'Space_Grotesk',sans-serif] ${
-                    tab() === "signup" ? `opacity-100 ${activeTabClass()}` : "opacity-35"
-                  }`}
+                  class={`flex-1 px-3 py-3 text-[13px] font-bold uppercase tracking-[1.5px] text-[#1a1a1a] transition-all duration-150 [font-family:'Space_Grotesk',sans-serif] ${authFormState.tab === "signup" ? `opacity-100 ${activeTabClass()}` : "opacity-35"
+                    }`}
                   type="button"
-                  onClick={() => setTab("signup")}
+                  onClick={() => setAuthFormState("tab", "signup")}
                 >
                   Sign up
                 </button>
               </div>
             </Show>
 
-            <Show when={tab() === "login"}>
+            <Show when={authFormState.tab === "signin"}>
               <div>
                 <div class="text-[40px] leading-none tracking-[1px] text-[#1a1a1a] [font-family:'Bebas_Neue',sans-serif]">
                   WELCOME<br />BACK.
@@ -337,6 +335,12 @@ export function AuthRolePage(props: AuthRolePageProps) {
                 <div class="mb-7 mt-1 text-[11px] uppercase tracking-[2px] text-[#1a1a1a] opacity-40 [font-family:'DM_Mono',monospace]">
                   // enter your credentials
                 </div>
+
+                <Show when={authFormState.errorMessage}>
+                  <div class="mb-4 border-2 border-[#1a1a1a] bg-[#e8e4dc] px-3 py-2 text-[11px] uppercase tracking-[2px] text-[#1a1a1a] [font-family:'DM_Mono',monospace]">
+                    {authFormState.errorMessage}
+                  </div>
+                </Show>
 
                 <div class="mb-4">
                   <label class="mb-1.5 block text-[10px] uppercase tracking-[2px] text-[#1a1a1a] opacity-55 [font-family:'DM_Mono',monospace]">
@@ -346,6 +350,8 @@ export function AuthRolePage(props: AuthRolePageProps) {
                     type="email"
                     class="w-full border-2 border-[#1a1a1a] bg-[#f7f5f0] px-3.5 py-2.5 text-[14px] font-medium text-[#1a1a1a] shadow-[3px_3px_0_#1a1a1a] transition-all focus:bg-white focus:shadow-[4px_4px_0_#1a1a1a]"
                     placeholder="you@example.com"
+                    value={authFormState.signinEmail}
+                    onInput={(event) => setAuthFormState("signinEmail", event.currentTarget.value)}
                   />
                 </div>
                 <div class="mb-4">
@@ -356,6 +362,8 @@ export function AuthRolePage(props: AuthRolePageProps) {
                     type="password"
                     class="w-full border-2 border-[#1a1a1a] bg-[#f7f5f0] px-3.5 py-2.5 text-[14px] font-medium text-[#1a1a1a] shadow-[3px_3px_0_#1a1a1a] transition-all focus:bg-white focus:shadow-[4px_4px_0_#1a1a1a]"
                     placeholder="••••••••••"
+                    value={authFormState.signinPassword}
+                    onInput={(event) => setAuthFormState("signinPassword", event.currentTarget.value)}
                   />
                 </div>
 
@@ -363,16 +371,15 @@ export function AuthRolePage(props: AuthRolePageProps) {
                   <button
                     type="button"
                     class="flex items-center gap-2 text-[13px] font-semibold text-[#1a1a1a]"
-                    onClick={() => setRemember(!remember())}
+                    onClick={() => setAuthFormState("remember", !authFormState.remember)}
                   >
                     <div
-                      class={`flex h-4 w-4 items-center justify-center border-2 border-[#1a1a1a] bg-[#f7f5f0] ${
-                        remember()
-                          ? config().style === "participant"
-                            ? "bg-[#c8b89a]"
-                            : "bg-[#8fa3a8]"
-                          : ""
-                      }`}
+                      class={`flex h-4 w-4 items-center justify-center border-2 border-[#1a1a1a] bg-[#f7f5f0] ${authFormState.remember
+                        ? ROLE_CONFIG[props.role].style === "participant"
+                          ? "bg-[#c8b89a]"
+                          : "bg-[#8fa3a8]"
+                        : ""
+                        }`}
                     >
                       <svg width="9" height="7" viewBox="0 0 9 7" fill="none">
                         <path
@@ -393,8 +400,14 @@ export function AuthRolePage(props: AuthRolePageProps) {
                 <button
                   class="w-full border-2 border-[#1a1a1a] bg-[#1a1a1a] px-4 py-3 text-[14px] font-extrabold uppercase tracking-[2px] text-[#f7f5f0] shadow-[4px_4px_0_#1a1a1a] transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_#1a1a1a] active:translate-x-0 active:translate-y-0 active:shadow-[2px_2px_0_#1a1a1a]"
                   type="button"
+                  disabled={authFormState.isSubmitting}
+                  onClick={() => handleAuth("signin", {
+                    email: authFormState.signinEmail,
+                    password: authFormState.signinPassword,
+                    role: props.role,
+                  })}
                 >
-                  Login to Aimsight →
+                  {authFormState.isSubmitting ? "Signing in..." : "Signin to Nexus ->"}
                 </button>
 
                 <div class="my-5 flex items-center gap-3">
@@ -443,7 +456,7 @@ export function AuthRolePage(props: AuthRolePageProps) {
               </div>
             </Show>
 
-            <Show when={tab() === "signup" && showSignup()}>
+            <Show when={authFormState.tab === "signup" && showSignup()}>
               <div>
                 <div class="text-[40px] leading-none tracking-[1px] text-[#1a1a1a] [font-family:'Bebas_Neue',sans-serif]">
                   CREATE<br />ACCOUNT.
@@ -451,6 +464,12 @@ export function AuthRolePage(props: AuthRolePageProps) {
                 <div class="mb-7 mt-1 text-[11px] uppercase tracking-[2px] text-[#1a1a1a] opacity-40 [font-family:'DM_Mono',monospace]">
                   // start your journey
                 </div>
+
+                <Show when={authFormState.errorMessage}>
+                  <div class="mb-4 border-2 border-[#1a1a1a] bg-[#e8e4dc] px-3 py-2 text-[11px] uppercase tracking-[2px] text-[#1a1a1a] [font-family:'DM_Mono',monospace]">
+                    {authFormState.errorMessage}
+                  </div>
+                </Show>
 
                 <div class="flex gap-3">
                   <div class="mb-4 flex-1">
@@ -461,6 +480,8 @@ export function AuthRolePage(props: AuthRolePageProps) {
                       type="text"
                       class="w-full border-2 border-[#1a1a1a] bg-[#f7f5f0] px-3.5 py-2.5 text-[14px] font-medium text-[#1a1a1a] shadow-[3px_3px_0_#1a1a1a] transition-all focus:bg-white focus:shadow-[4px_4px_0_#1a1a1a]"
                       placeholder="Alex"
+                      value={authFormState.signupFirst}
+                      onInput={(event) => setAuthFormState("signupFirst", event.currentTarget.value)}
                     />
                   </div>
                   <div class="mb-4 flex-1">
@@ -471,6 +492,8 @@ export function AuthRolePage(props: AuthRolePageProps) {
                       type="text"
                       class="w-full border-2 border-[#1a1a1a] bg-[#f7f5f0] px-3.5 py-2.5 text-[14px] font-medium text-[#1a1a1a] shadow-[3px_3px_0_#1a1a1a] transition-all focus:bg-white focus:shadow-[4px_4px_0_#1a1a1a]"
                       placeholder="Kim"
+                      value={authFormState.signupLast}
+                      onInput={(event) => setAuthFormState("signupLast", event.currentTarget.value)}
                     />
                   </div>
                 </div>
@@ -483,6 +506,8 @@ export function AuthRolePage(props: AuthRolePageProps) {
                     type="email"
                     class="w-full border-2 border-[#1a1a1a] bg-[#f7f5f0] px-3.5 py-2.5 text-[14px] font-medium text-[#1a1a1a] shadow-[3px_3px_0_#1a1a1a] transition-all focus:bg-white focus:shadow-[4px_4px_0_#1a1a1a]"
                     placeholder="you@example.com"
+                    value={authFormState.signupEmail}
+                    onInput={(event) => setAuthFormState("signupEmail", event.currentTarget.value)}
                   />
                 </div>
 
@@ -495,6 +520,8 @@ export function AuthRolePage(props: AuthRolePageProps) {
                       type="text"
                       class="w-full border-2 border-[#1a1a1a] bg-[#f7f5f0] px-3.5 py-2.5 text-[14px] font-medium text-[#1a1a1a] shadow-[3px_3px_0_#1a1a1a] transition-all focus:bg-white focus:shadow-[4px_4px_0_#1a1a1a]"
                       placeholder="ACME Corp."
+                      value={authFormState.signupOrg}
+                      onInput={(event) => setAuthFormState("signupOrg", event.currentTarget.value)}
                     />
                   </div>
                 </Show>
@@ -507,6 +534,8 @@ export function AuthRolePage(props: AuthRolePageProps) {
                     type="password"
                     class="w-full border-2 border-[#1a1a1a] bg-[#f7f5f0] px-3.5 py-2.5 text-[14px] font-medium text-[#1a1a1a] shadow-[3px_3px_0_#1a1a1a] transition-all focus:bg-white focus:shadow-[4px_4px_0_#1a1a1a]"
                     placeholder="Min. 8 characters"
+                    value={authFormState.signupPassword}
+                    onInput={(event) => setAuthFormState("signupPassword", event.currentTarget.value)}
                   />
                 </div>
                 <div class="mb-5">
@@ -517,22 +546,23 @@ export function AuthRolePage(props: AuthRolePageProps) {
                     type="password"
                     class="w-full border-2 border-[#1a1a1a] bg-[#f7f5f0] px-3.5 py-2.5 text-[14px] font-medium text-[#1a1a1a] shadow-[3px_3px_0_#1a1a1a] transition-all focus:bg-white focus:shadow-[4px_4px_0_#1a1a1a]"
                     placeholder="Repeat password"
+                    value={authFormState.signupPasswordConfirm}
+                    onInput={(event) => setAuthFormState("signupPasswordConfirm", event.currentTarget.value)}
                   />
                 </div>
 
                 <button
                   type="button"
                   class="mb-5 flex items-center gap-2 text-[13px] font-semibold text-[#1a1a1a]"
-                  onClick={() => setAcceptedTerms(!acceptedTerms())}
+                  onClick={() => setAuthFormState("acceptedTerms", !authFormState.acceptedTerms)}
                 >
                   <div
-                    class={`flex h-4 w-4 items-center justify-center border-2 border-[#1a1a1a] bg-[#f7f5f0] ${
-                      acceptedTerms()
-                        ? config().style === "participant"
-                          ? "bg-[#c8b89a]"
-                          : "bg-[#8fa3a8]"
-                        : ""
-                    }`}
+                    class={`flex h-4 w-4 items-center justify-center border-2 border-[#1a1a1a] bg-[#f7f5f0] ${authFormState.remember
+                      ? ROLE_CONFIG[props.role].style === "participant"
+                        ? "bg-[#c8b89a]"
+                        : "bg-[#8fa3a8]"
+                      : ""
+                      }`}
                   >
                     <svg width="9" height="7" viewBox="0 0 9 7" fill="none">
                       <path
@@ -549,8 +579,17 @@ export function AuthRolePage(props: AuthRolePageProps) {
                 <button
                   class="w-full border-2 border-[#1a1a1a] bg-[#1a1a1a] px-4 py-3 text-[14px] font-extrabold uppercase tracking-[2px] text-[#f7f5f0] shadow-[4px_4px_0_#1a1a1a] transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_#1a1a1a] active:translate-x-0 active:translate-y-0 active:shadow-[2px_2px_0_#1a1a1a]"
                   type="button"
+                  disabled={authFormState.isSubmitting}
+                  onClick={() => handleAuth("signup", {
+                    email: authFormState.signupEmail,
+                    password: authFormState.signupPassword,
+                    firstName: authFormState.signupFirst,
+                    lastName: authFormState.signupLast,
+                    role: props.role === "enterprise" ? "enterprise" : "participant",
+                    organization: props.role === "enterprise" ? authFormState.signupOrg : undefined,
+                  })}
                 >
-                  Create My Account →
+                  {authFormState.isSubmitting ? "Creating..." : "Create My Account ->"}
                 </button>
               </div>
             </Show>
