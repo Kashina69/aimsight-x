@@ -5,7 +5,7 @@ import type { APIEvent } from "@solidjs/start/server";
 // 	serializeSessionCookie,
 // 	publicUser,
 // } from "~/routes/api/utils/authentication/store";
-// import validateSignupPayload from "./validateSignupPayload";
+import validateSignupPayload from "./validateSignupPayload";
 
 // export async function POST(event: APIEvent) {
 // 	const result = await validateSignupPayload(event);
@@ -47,13 +47,20 @@ import type { APIEvent } from "@solidjs/start/server";
 import { MongoServerError } from "mongodb";
 import { err, okWithCookie } from "../../utils/api";
 import { getUsersCollection } from "../../config/dbConfig";
-import { signToken, toPublicUser } from "../../utils/authentication/auth.utils";
+import { hashPassword, signToken, toPublicUser } from "../../utils/authentication/auth.utils";
 
 export async function POST(event: APIEvent) {
-  const body = await event.request.json();
-  const { email, password, name } = body;
+  // const body = await event.request.json();
 
-  if (!email || !password || !name) return err("All fields are required", 400);
+  const result = await validateSignupPayload(event);
+  if ("error" in result) {
+    return result.error;
+  }
+
+  const { email, password, firstName, lastName, role, organization } = result.payload;
+
+
+  if (!email || !password || !firstName) return err("All fields are required", 400);
   if (password.length < 8) return err("Password must be at least 8 characters", 400);
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return err("Invalid email", 400);
 
@@ -64,7 +71,8 @@ export async function POST(event: APIEvent) {
     const result = await users.insertOne({
       email: email.toLowerCase().trim(),
       passwordHash: await hashPassword(password),
-      name: name.trim(),
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
       createdAt: now,
       updatedAt: now,
     });

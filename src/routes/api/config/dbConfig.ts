@@ -1,8 +1,8 @@
 // import mongoose from "mongoose";
-// import { resolve } from "node:path";
-// import { config as loadEnv } from "dotenv";
+import { resolve } from "node:path";
+import { config as loadEnv } from "dotenv";
 
-// loadEnv({ path: resolve(process.cwd(), ".env") });
+loadEnv({ path: resolve(process.cwd(), ".env") });
 
 // let connectPromise: Promise<typeof mongoose> | null = null;
 // let hasLoggedReady = false;
@@ -39,11 +39,12 @@
 import { MongoClient, Db } from "mongodb";
 import { UserDocument } from "~/types/auth";
 
-const MONGODB_URI = process.env.MONGODB_URI!;
+const DB_URI = process.env.DB_URI!;
 const DB_NAME = process.env.MONGODB_DB_NAME ?? "app";
 
-if (!MONGODB_URI) {
-  throw new Error("MONGODB_URI is not defined in environment variables");
+console.log(DB_URI);
+if (!DB_URI) {
+  throw new Error("DB_URI is not defined in environment variables");
 }
 
 // In development, reuse the connection across HMR reloads.
@@ -58,12 +59,12 @@ let clientPromise: Promise<MongoClient>;
 
 if (process.env.NODE_ENV === "development") {
   if (!global._mongoClientPromise) {
-    client = new MongoClient(MONGODB_URI);
+    client = new MongoClient(DB_URI);
     global._mongoClientPromise = client.connect();
   }
   clientPromise = global._mongoClientPromise;
 } else {
-  client = new MongoClient(MONGODB_URI);
+  client = new MongoClient(DB_URI);
   clientPromise = client.connect();
 }
 

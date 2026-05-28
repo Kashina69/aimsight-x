@@ -1,8 +1,9 @@
 export interface UserDocument {
-  _id: string;
+  _id?: string;
   email: string;
   passwordHash: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   createdAt: Date;
   updatedAt: Date;
 }

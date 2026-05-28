@@ -2,7 +2,10 @@ import { getRequestEvent } from "solid-js/web";
 import bcrypt from "bcryptjs";
 import { SignJWT, jwtVerify } from "jose";
 import type { JWTPayload, UserPublic, UserDocument } from "~/types/auth";
+import { resolve } from "node:path";
+import { config as loadEnv } from "dotenv";
 
+loadEnv({ path: resolve(process.cwd(), ".env") });
 
 const COOKIE_NAME = "auth_token";
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
