@@ -11,7 +11,9 @@
     "@solidjs/router": "^0.15.0",
     "@solidjs/start": "2.0.0-alpha.2",
     "@solidjs/vite-plugin-nitro-2": "^0.1.0",
+    "bcryptjs": "^3.0.3",
     "dotenv": "^17.4.2",
+    "jose": "^6.2.3",
     "mongoose": "^9.6.2",
     "solid-js": "^1.9.5",
     "vite": "^7.0.0"
