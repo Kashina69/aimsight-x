@@ -1,9 +1,16 @@
-import { createHash, randomUUID } from "node:crypto";
-import { resolve } from "node:path";
-import { config as loadEnv } from "dotenv";
+// import { createHash, randomUUID } from "node:crypto";
+// import { resolve } from "node:path";
+// import { config as loadEnv } from "dotenv";
 
-loadEnv({ path: resolve(process.cwd(), ".env"), quiet: true });
+// loadEnv({ path: resolve(process.cwd(), ".env"), quiet: true });
 
+// if (import.meta.env.SSR) {
+//   const { config } = await import("dotenv");
+//   config();
+// }
+
+
+console.log(process.env, "hello")
 export type AuthRole = "participant" | "enterprise" | "admin";
 
 export type UserRecord = {
@@ -30,8 +37,13 @@ const sessions = new Map<string, SessionRecord>();
 const SESSION_COOKIE = "nexa_session";
 const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 7;
 
-function hashPassword(password: string) {
-  return createHash("sha256").update(password).digest("hex");
+async function hashPassword(password: string) {
+  // const { createHash } = await import("node:crypto");
+
+  // return createHash("sha256")
+  //   .update(password)
+  //   .digest("hex");
+  return ""
 }
 
 function nowIso() {
@@ -60,7 +72,8 @@ export function createUser(input: {
   }
 
   const record: UserRecord = {
-    id: randomUUID(),
+    // id: randomUUID(),
+    id: "",
     email,
     firstName: input.firstName.trim(),
     lastName: input.lastName.trim(),
@@ -88,7 +101,8 @@ export function findUserById(id: string) {
 }
 
 export function createSession(userId: string) {
-  const token = randomUUID();
+  // const token = randomUUID();
+  const token = ""
   const session: SessionRecord = {
     token,
     userId,
