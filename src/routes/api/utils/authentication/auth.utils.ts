@@ -85,16 +85,7 @@ export async function signToken(payload: JWTPayload): Promise<string> {
     .sign(JWT_SECRET);
 }
 
-export async function verifyToken(
-  token: string
-): Promise<JWTPayload | null> {
-  try {
-    const { payload } = await jwtVerify(token, JWT_SECRET);
-    return payload as unknown as JWTPayload;
-  } catch {
-    return null;
-  }
-}
+
 
 
 
@@ -110,4 +101,20 @@ export function toPublicUser(doc: UserDocument): UserPublic {
     name: doc.name,
     createdAt: doc.createdAt,
   };
+}
+
+
+
+// USED
+
+
+export async function verifyToken(
+  token: string
+): Promise<JWTPayload | null> {
+  try {
+    const { payload } = await jwtVerify(token, JWT_SECRET);
+    return payload as unknown as JWTPayload;
+  } catch {
+    return null;
+  }
 }

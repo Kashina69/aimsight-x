@@ -2,5 +2,5 @@
 import { defineConfig } from "@solidjs/start/config";
 
 export default defineConfig({
-  middleware: "./src/routes/api/middlewares/auth.middleware.ts",
+  middleware: "./src/middlewares/auth.middleware.ts",
 });

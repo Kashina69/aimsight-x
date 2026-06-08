@@ -9,8 +9,8 @@
 //   config();
 // }
 
+export const TEST = 123;
 
-console.log(process.env, "hello")
 export type AuthRole = "participant" | "enterprise" | "admin";
 
 export type UserRecord = {
@@ -38,12 +38,9 @@ const SESSION_COOKIE = "nexa_session";
 const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 7;
 
 async function hashPassword(password: string) {
-  // const { createHash } = await import("node:crypto");
-
-  // return createHash("sha256")
-  //   .update(password)
-  //   .digest("hex");
-  return ""
+  return createHash("sha256")
+    .update(password)
+    .digest("hex");
 }
 
 function nowIso() {
@@ -72,8 +69,7 @@ export function createUser(input: {
   }
 
   const record: UserRecord = {
-    // id: randomUUID(),
-    id: "",
+    id: randomUUID(),
     email,
     firstName: input.firstName.trim(),
     lastName: input.lastName.trim(),
@@ -101,8 +97,7 @@ export function findUserById(id: string) {
 }
 
 export function createSession(userId: string) {
-  // const token = randomUUID();
-  const token = ""
+  const token = randomUUID();
   const session: SessionRecord = {
     token,
     userId,
