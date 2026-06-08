@@ -9,9 +9,9 @@ export default defineConfig({
     solidStart(),
     tailwindcss(),
     nitro(),
-    visualizer({
-        open: true,
-        filename: "stats.html",
-      }),
+    // visualizer({
+    //     open: true,
+    //     filename: "./docs/stats.html",
+    //   }),
   ]
 });

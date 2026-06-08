@@ -1,7 +1,7 @@
 import { getRequestEvent } from "solid-js/web";
 import bcrypt from "bcryptjs";
 import { SignJWT, jwtVerify } from "jose";
-import type { JWTPayload, UserPublic, UserDocument } from "~/types/auth";
+import type { JWTPayload, UserPublic, UserDocument } from "~/types/auth.types";
 import { resolve } from "node:path";
 import { config as loadEnv } from "dotenv";
 

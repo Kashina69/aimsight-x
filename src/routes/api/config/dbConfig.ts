@@ -37,7 +37,7 @@ loadEnv({ path: resolve(process.cwd(), ".env") });
 
 
 import { MongoClient, Db } from "mongodb";
-import { UserDocument } from "~/types/auth";
+import { UserDocument } from "~/types/auth.types";
 
 const DB_URI = process.env.DB_URI!;
 const DB_NAME = process.env.MONGODB_DB_NAME ?? "app";

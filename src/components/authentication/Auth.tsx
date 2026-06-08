@@ -2,7 +2,7 @@ import { A, useNavigate } from "@solidjs/router";
 import { Show } from "solid-js";
 import { createStore } from "solid-js/store";
 import ROLE_CONFIG from "./constants";
-import { createRequest } from "~/utils/api";
+import { createRequest } from "~/utils/api.utils";
 import { AuthTab, UserRole } from "~/constants/auth";
 
 export function AuthSelection() {

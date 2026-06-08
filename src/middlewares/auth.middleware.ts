@@ -1,17 +1,18 @@
 import { createMiddleware } from "@solidjs/start/middleware";
+import type { FetchEvent } from "@solidjs/start/server/types";
 import { verifyToken } from "../routes/api/utils/authentication/auth.utils";
 import { AUTH_ONLY, PROTECTED } from "~/constants/routs";
 
-function getCookieFromEvent(event){
+function getCookieFromEvent(event:FetchEvent){
   return event.request.headers.get("cookie") ?? "";
 }
 
-function getAuthTokenFromEvent(event) {
+function getAuthTokenFromEvent(event:FetchEvent) {
   const cookies = getCookieFromEvent(event);
   const tokenMatch = cookies.match(/(?:^|;\s*)auth_token=([^;]+)/);
   return tokenMatch?.[1] ?? null;
 }
-function getPathNameFromReqEvent(event){
+function getPathNameFromReqEvent(event:FetchEvent){
   const { pathname } = new URL(event.request.url);
   return pathname
 }
