@@ -1,92 +1,244 @@
 import { For, Show } from "solid-js";
-import { A } from "@solidjs/router";
+import { A, useLocation } from "@solidjs/router";
+
+type DashboardSidebarProps = {
+  rootPath: string;
+  onClose?: () => void;
+  class?: string;
+};
 
 const sections = [
   {
     title: "Project Management",
-    icon: "📁",
     items: [
-      { label: "Manage", href: "/manage" },
-      { label: "Launch", href: "/launch" },
-      { label: "Archived", href: "/archived" },
+      {
+        label: "Manage",
+        icon: "⊞",
+        href: "/manage",
+      },
+      {
+        label: "Launch",
+        icon: "◎",
+        href: "/launch",
+      },
+      {
+        label: "Archived",
+        icon: "▣",
+        href: "/archived",
+      },
     ],
   },
   {
     title: "Results",
-    icon: "📊",
     items: [
-      { label: "Insights", href: "/insights" },
-      { label: "Insights PRO - JEDI", href: "/insights-pro" },
-      { label: "Cross Tabs", href: "/cross-tabs" },
-      { label: "Raw Data", href: "/raw-data" },
+      {
+        label: "Insights",
+        icon: "↗",
+        href: "/insights",
+      },
+      {
+        label: "Insights PRO — JEDI",
+        icon: "◈",
+        href: "/insights-pro",
+      },
+      {
+        label: "Cross Tabs",
+        icon: "⊞",
+        href: "/cross-tabs",
+      },
+      {
+        label: "Raw Data",
+        icon: "☰",
+        href: "/raw-data",
+      },
     ],
   },
   {
     title: "Role Management",
-    icon: "🛡️",
     items: [
-      { label: "Users", href: "/users" },
-      { label: "Roles", href: "/roles" },
+      {
+        label: "Users",
+        icon: "◎",
+        href: "/users",
+      },
+      {
+        label: "Roles",
+        icon: "◇",
+        href: "/roles",
+      },
     ],
   },
   {
-    title: "Participant Management",
-    icon: "🧑‍🤝‍🧑",
+    title: "Participants",
     items: [
-      { label: "Project invitations", href: "/invitations" },
-      { label: "Your Participants", href: "/participants" },
-      { label: "Project Submissions", href: "/submissions" },
+      {
+        label: "Project Invitations",
+        icon: "✉",
+        href: "/invitations",
+      },
+      {
+        label: "Your Participants",
+        icon: "◎",
+        href: "/participants",
+      },
+      {
+        label: "Project Submissions",
+        icon: "▣",
+        href: "/submissions",
+      },
     ],
   },
 ];
 
-export default function DashboardSidebar(props) {
+export default function DashboardSidebar(props: DashboardSidebarProps) {
+  const location = useLocation();
+
+  const isActive = (href: string) =>
+    location.pathname === `${props.rootPath}${href}`;
+
   return (
-    <aside class={`flex h-full min-h-screen flex-col gap-8 border-r-2 border-[#1a1a1a] bg-[#f7f5f0] text-[#1a1a1a] ${props.class ?? ""}`}>
-      <div class="flex items-center justify-between gap-4">
+    <aside
+      class={`
+        flex
+        h-screen
+        w-[220px]
+        min-w-[220px]
+        flex-col
+        overflow-y-auto
+        border-r
+        border-[#3A342C]
+        bg-[#1C1917]
+        text-[#F5F0E6]
+        ${props.class ?? ""}
+      `}
+    >
+      {/* Logo */}
+      <div class="border-b border-[#3A342C] px-[18px] py-5">
         <div class="flex items-center gap-3">
-          <div class="flex h-12 w-12 items-center justify-center border-2 border-[#1a1a1a] bg-[#1a1a1a] text-[18px] font-bold uppercase tracking-[2px] text-[#f7f5f0]">
-            E
+          <div
+            class="
+              flex
+              h-[30px]
+              w-[30px]
+              items-center
+              justify-center
+              rounded-full
+              border
+              border-[#F5F0E6]
+              bg-[#B85C2A]
+              text-[13px]
+              font-bold
+              text-[#F5F0E6]
+            "
+          >
+            A
           </div>
+
           <div>
-            <div class="text-[11px] uppercase tracking-[3px] opacity-75 [font-family:'DM_Mono',monospace]">
-              Enterprise
+            <div
+              class="
+                font-serif
+                text-[15px]
+                font-bold
+                tracking-[0.02em]
+              "
+            >
+              aimsight
             </div>
-            <div class="text-[24px] tracking-[2px] [font-family:'Bebas_Neue',sans-serif]">
-              Dashboard
+
+            <div
+              class="
+                text-[9px]
+                uppercase
+                tracking-[0.08em]
+                text-[#8A837A]
+              "
+            >
+              Capture · Measure · Decide
             </div>
           </div>
         </div>
 
         <Show when={props.onClose}>
           <button
-            type="button"
             onClick={props.onClose}
-            class="md:hidden inline-flex items-center justify-center border-2 border-[#1a1a1a] bg-[#f7f5f0] px-3 py-2 text-[12px] font-bold uppercase tracking-[2px] text-[#1a1a1a] shadow-[4px_4px_0_#1a1a1a]"
+            class="
+              mt-4
+              w-full
+              border
+              border-[#8A837A]
+              px-3
+              py-2
+              text-[11px]
+              uppercase
+              tracking-wider
+              text-[#F5F0E6]
+              md:hidden
+            "
           >
             Close
           </button>
         </Show>
       </div>
 
-      <nav class="space-y-8">
+      {/* Navigation */}
+      <div class="flex-1">
         <For each={sections}>
           {(section) => (
-            <div class="space-y-3">
-              <div class="flex items-center gap-3 border-b-2 border-[#1a1a1a] pb-3">
-                <span class="text-[18px]">{section.icon}</span>
-                <span class="text-[11px] uppercase tracking-[2px] [font-family:'DM_Mono',monospace]">
-                  {section.title}
-                </span>
+            <div class="px-3 pb-2 pt-5">
+              <div
+                class="
+                  px-2
+                  pb-2
+                  text-[9px]
+                  uppercase
+                  tracking-[0.12em]
+                  text-[#6B6358]
+                "
+              >
+                {section.title}
               </div>
-              <div class="space-y-2">
+
+              <div class="space-y-1">
                 <For each={section.items}>
                   {(item) => (
                     <A
                       href={`${props.rootPath}${item.href}`}
-                      class="group flex items-center gap-3 border-2 border-[#1a1a1a] bg-[#f7f5f0] px-4 py-3 text-[13px] font-semibold uppercase tracking-[1.5px] text-[#1a1a1a] transition-all duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[4px_4px_0_#1a1a1a]"
+                      class={`
+                        flex
+                        items-center
+                        gap-2
+                        rounded-sm
+                        border
+                        px-2
+                        py-[7px]
+                        text-[13px]
+                        transition-colors
+                        ${isActive(item.href)
+                          ? `
+                              border-[#8C3C14]
+                              bg-[#B85C2A]
+                              font-medium
+                              text-[#F5F0E6]
+                            `
+                          : `
+                              border-transparent
+                              text-[#C8C0B0]
+                              hover:bg-[#2C2620]
+                              hover:text-[#F5F0E6]
+                            `
+                        }
+                      `}
                     >
-                      <span class="text-[14px]">•</span>
+                      <span
+                        class={`w-4 text-center ${isActive(item.href)
+                            ? "opacity-100"
+                            : "opacity-70"
+                          }`}
+                      >
+                        {item.icon}
+                      </span>
+
                       <span>{item.label}</span>
                     </A>
                   )}
@@ -95,15 +247,53 @@ export default function DashboardSidebar(props) {
             </div>
           )}
         </For>
-      </nav>
+      </div>
 
-      <div class="mt-auto">
-        <button
-          type="button"
-          class="inline-flex w-full items-center justify-center gap-2 border-2 border-[#1a1a1a] bg-[#1a1a1a] px-4 py-3 text-[12px] font-bold uppercase tracking-[2px] text-[#f7f5f0] shadow-[4px_4px_0_#1a1a1a] transition-all duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_#1a1a1a] active:translate-x-0 active:translate-y-0 active:shadow-[2px_2px_0_#1a1a1a]"
-        >
-          Logout
-        </button>
+      {/* Footer */}
+      <div class="mt-auto border-t border-[#3A342C] px-[18px] py-4">
+        <div class="flex items-center gap-3">
+          <div
+            class="
+              flex
+              h-[30px]
+              w-[30px]
+              items-center
+              justify-center
+              rounded-full
+              border
+              border-[#8C3C14]
+              bg-[#B85C2A]
+              text-[11px]
+              font-bold
+              text-[#F5F0E6]
+            "
+          >
+            K
+          </div>
+
+          <div class="min-w-0 flex-1">
+            <div
+              class="
+                truncate
+                text-[12px]
+                font-semibold
+                text-[#F5F0E6]
+              "
+            >
+              knight
+            </div>
+
+            <div
+              class="
+                truncate
+                text-[10px]
+                text-[#6B6358]
+              "
+            >
+              knight@yopmail.com
+            </div>
+          </div>
+        </div>
       </div>
     </aside>
   );

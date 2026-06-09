@@ -1,67 +1,240 @@
-import { createMemo, Show } from "solid-js";
+import { createSignal, Show } from "solid-js";
 
 type DashboardTopbarProps = {
+  title?: string;
   user: {
     firstName: string;
     lastName: string;
     email: string;
   };
-  subtitle?: string;
-  menuOpen: () => boolean;
-  setMenuOpen: (value: boolean) => void;
   onToggleSidebar: () => void;
 };
 
 export default function DashboardTopbar(props: DashboardTopbarProps) {
-  const initials = createMemo(() => {
-    const first = props.user?.firstName?.[0] ?? "";
-    const last = props.user?.lastName?.[0] ?? "";
-    return `${first}${last}`.toUpperCase() || "EU";
-  });
+  const [search, setSearch] = createSignal("");
+  const [menuOpen, setMenuOpen] = createSignal(false);
 
   return (
-    <header class="flex flex-wrap items-center justify-between gap-4 border-b-2 border-[#1a1a1a] bg-[#f7f5f0] px-6 py-5 shadow-[3px_3px_0_#1a1a1a]">
-      <button
-        type="button"
-        onClick={props.onToggleSidebar}
-        class=" inline-flex items-center justify-center border-2 border-[#1a1a1a] bg-[#f7f5f0] px-3 py-2 text-[16px] font-bold uppercase tracking-[2px] text-[#1a1a1a] shadow-[4px_4px_0_#1a1a1a]"
-      >
-        ☰
-      </button>
-      <div class="flex gap-4">
-        <div class="hidden items-center gap-3 md:flex">
-          <div class="flex h-11 w-11 items-center justify-center border-2 border-[#1a1a1a] bg-[#c8b89a] text-[14px] font-bold uppercase tracking-[2px] text-[#1a1a1a]">
-            {initials()}
-          </div>
-          <div class="leading-[1.1]">
-            <div class="text-[13px] font-bold uppercase tracking-[1.5px] [font-family:'Bebas_Neue',sans-serif]">
-              {props.user?.firstName} {props.user?.lastName}
-            </div>
-            <div class="text-[11px] tracking-[1px] opacity-70 [font-family:'DM_Mono',monospace]">
-              {props.user?.email}
-            </div>
-          </div>
+    <header
+      class="
+        flex
+        h-[52px]
+        items-center
+        justify-between
+        border-b
+        border-[#1C1917]
+        bg-[#F5F0E6]
+        px-7
+      "
+    >
+      {/* Left */}
+      <div class="flex items-center gap-4">
+        <button
+          type="button"
+          onClick={props.onToggleSidebar}
+          class="
+            flex
+            h-8
+            w-8
+            items-center
+            justify-center
+            border
+            border-[#1C1917]
+            bg-[#FDFAF3]
+            text-sm
+            shadow-[3px_3px_0_#1C1917]
+            transition-all
+            hover:-translate-x-px
+            hover:-translate-y-px
+            hover:shadow-[4px_4px_0_#1C1917]
+            md:hidden
+          "
+        >
+          ☰
+        </button>
+
+        <h1
+          class="
+            font-serif
+            text-[22px]
+            font-bold
+            tracking-[-0.01em]
+            text-[#1C1917]
+          "
+        >
+          {props.title ?? "Manage Projects"}
+        </h1>
+      </div>
+
+      {/* Right */}
+      <div class="flex items-center gap-3">
+        {/* Search */}
+        <div
+          class="
+            hidden
+            items-center
+            gap-2
+            border
+            border-[#1C1917]
+            bg-[#FDFAF3]
+            px-3
+            py-[5px]
+            shadow-[3px_3px_0_#1C1917]
+            md:flex
+          "
+        >
+          <span class="text-[#8A837A]">⌕</span>
+
+          <input
+            value={search()}
+            onInput={(e) => setSearch(e.currentTarget.value)}
+            placeholder="Search project..."
+            class="
+              w-[180px]
+              border-none
+              bg-transparent
+              text-[13px]
+              text-[#1C1917]
+              outline-none
+              placeholder:text-[#8A837A]
+            "
+          />
         </div>
-        <div class="relative ml-auto md:ml-0">
+
+        {/* User Menu */}
+        <div class="relative">
           <button
             type="button"
-            onClick={() => props.setMenuOpen(!props.menuOpen())}
-            class="inline-flex items-center justify-center gap-2 border-2 border-[#1a1a1a] bg-[#f7f5f0] px-3 py-2 text-[12px] font-bold uppercase tracking-[2px] text-[#1a1a1a] shadow-[4px_4px_0_#1a1a1a] transition-all duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_#1a1a1a]"
+            onClick={() => setMenuOpen(!menuOpen())}
+            class="
+              flex
+              items-center
+              gap-3
+              border
+              border-[#1C1917]
+              bg-[#FDFAF3]
+              px-3
+              py-[5px]
+              shadow-[3px_3px_0_#1C1917]
+              transition-all
+              hover:-translate-x-px
+              hover:-translate-y-px
+              hover:shadow-[4px_4px_0_#1C1917]
+            "
           >
-            <span>Account</span>
-            <span>{props.menuOpen() ? "▲" : "▼"}</span>
+            <div
+              class="
+                flex
+                h-7
+                w-7
+                items-center
+                justify-center
+                rounded-full
+                border
+                border-[#8C3C14]
+                bg-[#B85C2A]
+                text-[11px]
+                font-bold
+                text-[#F5F0E6]
+              "
+            >
+              {props.user.firstName[0]}
+              {props.user.lastName[0]}
+            </div>
+
+            <div class="hidden text-left lg:block">
+              <div
+                class="
+                  max-w-[120px]
+                  truncate
+                  text-[12px]
+                  font-semibold
+                  text-[#1C1917]
+                "
+              >
+                {props.user.firstName} {props.user.lastName}
+              </div>
+
+              <div
+                class="
+                  max-w-[120px]
+                  truncate
+                  text-[10px]
+                  text-[#8A837A]
+                "
+              >
+                {props.user.email}
+              </div>
+            </div>
+
+            <span class="text-[10px] text-[#8A837A]">
+              {menuOpen() ? "▲" : "▼"}
+            </span>
           </button>
 
-          <Show when={props.menuOpen()}>
-            <div class="absolute right-0 z-20 mt-3 min-w-[220px] space-y-2 border-2 border-[#1a1a1a] bg-[#f7f5f0] p-4 shadow-[6px_6px_0_#1a1a1a]">
-              <button class="w-full text-left border-2 border-[#1a1a1a] bg-[#e8e4dc] px-4 py-3 text-[13px] uppercase tracking-[1.5px] text-[#1a1a1a]">
-                Account details
+          <Show when={menuOpen()}>
+            <div
+              class="
+                absolute
+                right-0
+                top-[calc(100%+10px)]
+                z-50
+                w-[240px]
+                border
+                border-[#1C1917]
+                bg-[#FDFAF3]
+                p-2
+                shadow-[4px_4px_0_#1C1917]
+              "
+            >
+              <button
+                class="
+                  w-full
+                  border
+                  border-transparent
+                  px-3
+                  py-2
+                  text-left
+                  text-[13px]
+                  text-[#1C1917]
+                  hover:bg-[#EDE7D8]
+                "
+              >
+                Account Details
               </button>
-              <button class="w-full text-left border-2 border-[#1a1a1a] bg-[#e8e4dc] px-4 py-3 text-[13px] uppercase tracking-[1.5px] text-[#1a1a1a]">
-                Participant queries
+
+              <button
+                class="
+                  w-full
+                  border
+                  border-transparent
+                  px-3
+                  py-2
+                  text-left
+                  text-[13px]
+                  text-[#1C1917]
+                  hover:bg-[#EDE7D8]
+                "
+              >
+                Participant Queries
               </button>
-              <div class="border-t-[1.5px] border-[#1a1a1a]" />
-              <button class="w-full text-left border-2 border-[#1a1a1a] bg-[#1a1a1a] px-4 py-3 text-[13px] uppercase tracking-[1.5px] text-[#f7f5f0]">
+
+              <div class="my-2 border-t border-[#C8C0B0]" />
+
+              <button
+                class="
+                  w-full
+                  border
+                  border-[#8C3C14]
+                  bg-[#B85C2A]
+                  px-3
+                  py-2
+                  text-left
+                  text-[13px]
+                  font-medium
+                  text-[#F5F0E6]
+                "
+              >
                 Logout
               </button>
             </div>
